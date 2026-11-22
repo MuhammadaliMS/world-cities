@@ -1,0 +1,17 @@
+import { chromium } from "playwright";
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const city = process.argv[2] || "tokyo";
+const types = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".png": "image/png" };
+const server = createServer(async (req, res) => { try { const p = path.join(root, decodeURIComponent(new URL(req.url, "http://x").pathname)); const b = await readFile(p); res.writeHead(200, { "content-type": types[path.extname(p)] || "application/octet-stream" }); res.end(b); } catch { res.writeHead(404).end(); } });
+await new Promise((r) => server.listen(0, "127.0.0.1", r));
+const b = await chromium.launch(); const pg = await b.newPage();
+const t0 = Date.now();
+await pg.goto(`http://127.0.0.1:${server.address().port}/city.html?city=${city}&clean=1`);
+await pg.waitForFunction(() => typeof window.render === "function"); await pg.evaluate(() => window.ready);
+console.log("load ms", Date.now() - t0);
+const out = await pg.evaluate(() => { const r = {}; for (const t of [3, 10, 24, 39, 48]) { const a = performance.now(); for (let i = 0; i < 6; i++) window.render(t + i / 30); r[t] = ((performance.now() - a) / 6).toFixed(0); } return r; });
+console.log("ms per frame at t:", JSON.stringify(out));
+await b.close(); server.close();

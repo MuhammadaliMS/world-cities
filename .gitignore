@@ -1,0 +1,27 @@
+node_modules/
+out/
+.deploy/
+.DS_Store
+*.log
+
+# AI reference paintings (tracing guides only) and the scripts that made them
+assets/
+scripts/
+
+# hosting for zerowing.in/cities
+site/
+deploy/
+
+# internal working notes
+AGENT-BRIEF.md
+GRID-BRIEF.md
+GRID-QUEUE.md
+POLISH-BRIEF.md
+POLISH-QUEUE.md
+node_modules
+
+# checks for the hosted page (they need site/ and deploy/)
+tools/page-browsers.mjs
+tools/page-test.js
+tools/posters.mjs
+tools/live-site-check.mjs

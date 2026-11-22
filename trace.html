@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tile trace</title>
+<style>
+  html, body { margin: 0; background: #f5f0e5; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// trace.html?city=paris&tile=0,0&mode=split|onion|ref|code|grid|codegrid&t=2&scale=1&crop=x,y,w,h
+// ref = the Codex picture warped into canonical tile space by its slab corners (manifest.json).
+import { Kit, CTS, P, INK } from "./lib/vec-kit.js";
+import { createPaperTexture } from "./lib/iso-engine.js";
+
+const q = new URLSearchParams(location.search);
+const city = q.get("city") || "paris";
+const tile = q.get("tile") || "0,0";
+const mode = q.get("mode") || "split";
+const S = Number(q.get("scale") || 1);
+const crop = q.get("crop") ? q.get("crop").split(",").map(Number) : [0, 0, CTS.W, CTS.H];
+const [cx, cy, cw, ch] = crop;
+const panels = mode === "split" ? 2 : 1;
+const canvas = document.getElementById("c");
+canvas.width = cw * S * panels; canvas.height = ch * S;
+const ctx = canvas.getContext("2d");
+
+function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+
+// affine that maps 3 source points to 3 dest points
+function affine(s, d) {
+  const [[x0, y0], [x1, y1], [x2, y2]] = s, [[u0, v0], [u1, v1], [u2, v2]] = d;
+  const det = x0 * (y1 - y2) - x1 * (y0 - y2) + x2 * (y0 - y1);
+  const a = (u0 * (y1 - y2) - u1 * (y0 - y2) + u2 * (y0 - y1)) / det;
+  const c = -(u0 * (x1 - x2) - u1 * (x0 - x2) + u2 * (x0 - x1)) / det;
+  const e = (u0 * (x1 * y2 - x2 * y1) - u1 * (x0 * y2 - x2 * y0) + u2 * (x0 * y1 - x1 * y0)) / det;
+  const b = (v0 * (y1 - y2) - v1 * (y0 - y2) + v2 * (y0 - y1)) / det;
+  const dd = -(v0 * (x1 - x2) - v1 * (x0 - x2) + v2 * (x0 - x1)) / det;
+  const f = (v0 * (x1 * y2 - x2 * y1) - v1 * (x0 * y2 - x2 * y0) + v2 * (x0 * y1 - x1 * y0)) / det;
+  return [a, b, c, dd, e, f];
+}
+
+window.ready = (async () => {
+  // The reference painting is optional: without one (a fresh clone, or your own city) only the code is shown.
+  let m = null, ref = null;
+  try {
+    const manifest = await (await fetch(`./assets/${city}/manifest.json`, { cache: "no-store" })).json();
+    m = manifest[tile]; ref = await loadImage(`./${m.file}`);
+  } catch { m = null; ref = null; }
+  const fileKey = tile.replace(",", "_");
+  let draw = null;
+  try { draw = (await import(`./vtiles/${city}/${fileKey}.js?v=${Date.now()}`)).default; } catch (e) { console.error("no tile module", e); }
+  const paper = createPaperTexture(CTS.W, CTS.H);
+  // the Codex slabs are thicker than the stage slab: map the ref slab BOTTOM to this depth so its top surface sits on z=0
+  const REF_SLAB = Number(q.get("refslab") || (m && m.refSlab) || 1.15);
+  // ref slab-bottom corners -> CTS slab-bottom corners (stage convention)
+  let A = null;
+  if (m) {
+    const yl = m.by - m.slopeL * (m.bx - m.lx), yr = m.by - m.slopeR * (m.rx - m.bx);
+    A = affine([[m.bx, m.by], [m.lx, yl], [m.rx, yr]], [P(10, 10, -REF_SLAB), P(0, 10, -REF_SLAB), P(10, 0, -REF_SLAB)]);
+  }
+
+  function panel(i, fn) {
+    ctx.save();
+    ctx.translate(i * cw * S, 0);
+    ctx.beginPath(); ctx.rect(0, 0, cw * S, ch * S); ctx.clip();
+    ctx.scale(S, S); ctx.translate(-cx, -cy);
+    fn();
+    ctx.restore();
+  }
+  const drawRef = (alpha = 1) => { if (!ref) return; ctx.save(); ctx.globalAlpha = alpha; ctx.setTransform(...(() => { const t = ctx.getTransform(); return [t.a * A[0] + t.c * A[1], t.b * A[0] + t.d * A[1], t.a * A[2] + t.c * A[3], t.b * A[2] + t.d * A[3], t.a * A[4] + t.c * A[5] + t.e, t.b * A[4] + t.d * A[5] + t.f]; })()); ctx.drawImage(ref, 0, 0); ctx.restore(); };
+  const drawPaper = () => ctx.drawImage(paper, 0, 0);
+  const drawCode = (t) => { if (!draw) return; const k = new Kit(ctx, t); draw(k, t); k.flush(); };
+  const grid = () => {
+    ctx.save();
+    // pixel grid every 50
+    ctx.font = "10px monospace"; ctx.lineWidth = 0.6;
+    for (let x = 0; x <= CTS.W; x += 50) { ctx.strokeStyle = x % 100 ? "rgba(0,120,255,0.18)" : "rgba(0,120,255,0.4)"; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, CTS.H); ctx.stroke(); if (x % 100 === 0) { ctx.fillStyle = "#0060d0"; ctx.fillText(x, x + 2, cy + 10); } }
+    for (let y = 0; y <= CTS.H; y += 50) { ctx.strokeStyle = y % 100 ? "rgba(0,120,255,0.18)" : "rgba(0,120,255,0.4)"; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(CTS.W, y); ctx.stroke(); if (y % 100 === 0) { ctx.fillStyle = "#0060d0"; ctx.fillText(y, cx + 2, y - 2); } }
+    // iso ground grid (u,v every 1 unit) in magenta with labels
+    ctx.lineWidth = 1.3;
+    for (let i = 0; i <= 10; i++) {
+      ctx.strokeStyle = i % 5 ? "rgba(230,0,150,0.6)" : "rgba(230,0,150,0.95)";
+      ctx.beginPath(); ctx.moveTo(...P(i, 0)); ctx.lineTo(...P(i, 10)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(...P(0, i)); ctx.lineTo(...P(10, i)); ctx.stroke();
+      ctx.fillStyle = "#c0007a"; ctx.font = "bold 11px monospace";
+      ctx.fillText("u" + i, ...P(i, -0.35)); ctx.fillText("v" + i, ...(([x, y]) => [x - 22, y])(P(-0.2, i)));
+    }
+    ctx.restore();
+  };
+
+  window.render = (t = Number(q.get("t") || 2)) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#f5f0e5"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (mode === "split") { panel(0, () => { drawPaper(); drawRef(); }); panel(1, () => { drawPaper(); drawCode(t); }); }
+    else if (mode === "onion") panel(0, () => { drawPaper(); drawRef(0.45); drawCode(t); });
+    else if (mode === "ref") panel(0, () => { drawPaper(); drawRef(); });
+    else if (mode === "code") panel(0, () => { drawPaper(); drawCode(t); });
+    else if (mode === "grid") panel(0, () => { drawPaper(); drawRef(); grid(); });
+    else if (mode === "codegrid") panel(0, () => { drawPaper(); drawRef(0.35); drawCode(t); grid(); });
+  };
+  render();
+  if (q.has("play")) { const t0 = performance.now(); const loop = () => { render((performance.now() - t0) / 1000); requestAnimationFrame(loop); }; loop(); }
+})();
+</script>
+</body>
+</html>

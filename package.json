@@ -1,0 +1,17 @@
+{
+  "name": "world-cities",
+  "version": "1.0.0",
+  "description": "Five world cities as living isometric miniatures, drawn and animated entirely in code with Canvas 2D.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8080",
+    "shot": "node tools/trace-shot.mjs",
+    "audit": "node tools/audit-tiles.mjs",
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.0"
+  }
+}

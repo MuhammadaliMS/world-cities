@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Cities — Isometric Editorial Animation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #ffffff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; }
+  #hud {
+    position: fixed; left: 20px; bottom: 20px; z-index: 10;
+    background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(14,15,18,0.18);
+    border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;
+    color: #0e0f12; font-size: 12px; box-shadow: 0 8px 24px rgba(14,15,18,0.08);
+    backdrop-filter: blur(8px);
+  }
+  #hud button {
+    background: #0e0f12; color: #ffffff; border: 0; border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; font: inherit;
+  }
+  #hud input[type=range] { width: 220px; accent-color: #3355ff; }
+  #hud a { color: #0e0f12; text-decoration: none; opacity: 0.7; }
+  #hud a:hover { opacity: 1; }
+  body.clean #hud { display: none; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1920" height="1080"></canvas>
+<div id="hud">
+  <a href="index.html">← All Cities</a>
+  <strong id="cityTitle"></strong>
+  <button id="playBtn">Pause</button>
+  <input id="scrubber" type="range" min="0" max="52" step="0.033" value="0">
+  <span id="timeLabel">0.0s / 52.0s</span>
+</div>
+<script type="module">
+  import { WorldStage, DURATION, FPS } from "./lib/world-stage.js";
+  import { LiveCity, liveSupported } from "./lib/live-city.js";
+
+  const params = new URLSearchParams(location.search);
+  const cityId = (params.get("city") || "paris").toLowerCase();
+  const isClean = params.get("clean") === "1" || params.has("clean");
+  if (isClean) document.body.classList.add("clean");
+
+  window.VIDEO = { width: 1920, height: 1080, fps: FPS, duration: DURATION };
+
+  const canvas = document.getElementById("stage");
+  const playBtn = document.getElementById("playBtn");
+  const scrubber = document.getElementById("scrubber");
+  const timeLabel = document.getElementById("timeLabel");
+  const label = (t) => { timeLabel.textContent = `${t.toFixed(1)}s / ${DURATION.toFixed(1)}s`; };
+  const num = (k) => (params.has(k) ? Number(params.get(k)) : undefined);
+
+  window.ready = (async () => {
+    const city = (await import(`./cities/${cityId}.js`)).default;
+    document.title = `${city.name} — World Cities`;
+    document.getElementById("cityTitle").textContent = city.name;
+
+    // Frame renderer (render.mjs, ?clean) and frozen previews (?t=seconds) draw everything on this thread
+    if (isClean || params.has("t") || params.has("main") || !liveSupported()) {
+      const stage = new WorldStage(canvas, city);
+      await stage.loadAssets();
+      if (!isClean) stage.background = "#ffffff"; // the film renderer (?clean) keeps the paper texture
+      window.render = (t) => stage.render(t);
+      stage.render(parseFloat(params.get("t")) || 0);
+      if (isClean || params.has("t")) return;
+      // no workers here: play on the main thread, on a lighter canvas
+      stage.resize(1280, 720);
+      let playing = true, simT = 0, lastTs = performance.now();
+      playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; lastTs = performance.now(); };
+      scrubber.oninput = () => { simT = parseFloat(scrubber.value); stage.render(simT); label(simT); };
+      requestAnimationFrame(function tick(now) {
+        const dt = Math.min(0.1, (now - lastTs) / 1000); lastTs = now;
+        if (playing) { simT = (simT + dt) % DURATION; scrubber.value = simT; label(simT); stage.render(simT); }
+        requestAnimationFrame(tick);
+      });
+      return;
+    }
+
+    // Live playback: tiles are drawn in parallel by workers (lib/live-city.js)
+    const live = new LiveCity(canvas, cityId, {
+      workers: num("workers"), size: num("size"), maxWidth: 1920, background: "#ffffff",
+      onFrame: (t) => { if (live.playing) { scrubber.value = t; label(t); } },
+    });
+    window.live = live;
+    await live.load();
+    live.play();
+    playBtn.onclick = () => { if (live.playing) live.pause(); else live.play(); playBtn.textContent = live.playing ? "Pause" : "Play"; };
+    scrubber.oninput = () => { const t = parseFloat(scrubber.value); label(t); live.seek(t); };
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+import { webkit } from "playwright";
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const server = createServer(async (req, res) => { try { const p = path.join(root, decodeURIComponent(new URL(req.url, "http://x").pathname)); const b = await readFile(p); res.writeHead(200, { "content-type": p.endsWith(".js") ? "text/javascript" : "text/html" }); res.end(b); } catch { res.writeHead(404).end(); } });
+await new Promise((r) => server.listen(0, "127.0.0.1", r));
+const b = await webkit.launch(); const pg = await b.newPage({ viewport: { width: 1280, height: 720 } });
+pg.on("console", (m) => { if (m.type() !== "log") console.log(m.type(), m.text()); }); pg.on("pageerror", (e) => console.log("page error:", e.message));
+await pg.goto(`http://127.0.0.1:${server.address().port}/city.html?city=dubai&size=1`);
+const info = await pg.evaluate(async () => { await window.ready; const L = window.live; L.pause(); await L.draw(20); L.play(); await new Promise((r) => setTimeout(r, 2500)); return { t: +L.t.toFixed(1), stats: L.stats, lead: L.lead, cap: L.cap }; });
+console.log(JSON.stringify(info));
+await pg.screenshot({ path: path.join(root, "out/live/webkit_dubai.png") });
+await b.close(); server.close();
