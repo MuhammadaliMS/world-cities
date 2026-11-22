@@ -20,7 +20,8 @@ streets. Re-compose on the grid instead: moving, shrinking, rotating or dropping
    boxes) seen corner-on: you see its **left face** (the `v + dv` side), its **right face** (the `u + du`
    side) and its top. No flat frontal elevations and no buildings turned to face the camera. Put the main
    facade on whichever visible face shows it best. Round things are true cylinders, cones and domes on a
-   ground ellipse. A wheel stands in a plane along one axis, so it is drawn as an ellipse.
+   ground ellipse, and a curved wall (an arena, a crescent) follows an ellipse laid out in tile units. A wheel
+   stands in a plane along one axis, so it is drawn as an ellipse.
 4. **Composition.** The landmark sits in the back half so it rises against the sky. The front half is open
    ground (plaza, lawn, water, street) full of people and motion. Lower things in front, taller behind.
    Leave a pavement rim about 0.4 wide inside the tile edge where it makes sense.

@@ -7,6 +7,15 @@ commands and look at screenshots). Replace the parts in CAPITALS.
 - **Prompt 2** adds one tile to this engine.
 - **Prompt 3** builds a whole new city with this engine, nine tiles.
 
+What one pass gives you (Claude Sonnet, no edits afterwards, subject "the Colosseum, Rome"):
+
+| Prompt 1, from scratch | Prompt 2, with the engine |
+|---|---|
+| ![Prompt 1 result](docs/img/prompt-1.jpg) | ![Prompt 2 result](docs/img/prompt-2.jpg) |
+
+The 45 tiles in this repo took many more passes than that. Treat the first result as a start and ask for a
+second pass on whatever looks weakest.
+
 For prompts 2 and 3, clone this repo first and run the agent inside it:
 
 ```
@@ -25,16 +34,17 @@ Build one living isometric city tile as a single HTML file. Canvas 2D only: no l
 Subject: LANDMARK, CITY (for example: the Colosseum, Rome).
 
 SPACE
-- The tile is a 10 x 10 unit square of ground seen from one fixed isometric camera. u runs to the back-right corner, v to the back-left corner, z is up.
+- The tile is a 10 x 10 unit square of ground seen from one fixed isometric camera, drawn as a diamond. (0, 0) is the back corner (top of the diamond), u runs from there to the right corner, v runs to the left corner, and (10, 10) is the front corner nearest the viewer. z is up.
 - One function places every point on a 1024 x 1024 drawing area:
   P(u, v, z) = [512 + (u - v) * 45, 405 + (u + v) * 45 * 0.577 - z * 45 * 0.94]
 - Every shape goes through P. No drawing in raw screen pixels, except a few pixels of detail around a projected anchor.
+- Headroom: the back corner sits at y = 405, so there is room for a landmark about 9 units tall. For a taller one, scale the whole drawing down rather than letting it leave the canvas.
 - Of any box you see three faces: the top, the left face (the v + dv side) and the right face (the u + du side).
 - Depth: a larger u + v is nearer the viewer. Each frame, collect { depth, draw } items, sort by depth, then draw them, so people pass correctly in front of and behind things.
 
 GRID RULES (these are what make it look right)
 1. Everything that touches the ground stays inside 0.3 to 9.7 in both u and v. Only height may rise above the tile.
-2. Every wall runs along u or along v. Buildings are boxes seen corner-on. No flat front views, nothing turned to face the camera. Round things are real cylinders, cones and domes on a ground ellipse; a wheel stands in a plane along one axis, so it is drawn as an ellipse.
+2. Every straight wall runs along u or along v. Buildings are boxes seen corner-on. No flat front views, nothing turned to face the camera. Round things are real cylinders, cones and domes on a ground ellipse, and a curved landmark (an arena, a rotunda) is a ring of wall segments between points on a ground ellipse set out in tile units. A wheel stands in a plane along one axis, so it is drawn as an ellipse.
 3. The landmark stands in the back half so it rises against the sky. The front half is open ground (plaza, lawn, water) full of people.
 4. The tile sits on a thin slab, 0.46 units deep, with a left and a right side.
 5. One scale: an adult is about 0.74 units tall (a child 0.5), a storey about 0.58, a tree 1.3 to 1.9.
@@ -45,11 +55,11 @@ STYLE
 - Model the landmark's real, recognisable features: silhouette, proportions, rooflines, arches, windows, ornament, materials. It must read at thumbnail size and still hold up at 3x zoom. No blank signs: short real text.
 
 LIFE
-- At least 12 people moving at any moment. Each person is jointed (head, torso, two arms, two legs) and their feet stay planted: the step phase comes from distance walked divided by stride length, never from time alone. They follow smooth routes of (u, v) points, pause at the ends, turn and come back. Nobody walks through a wall, a prop or water.
+- At least 16 people, of whom 12 or more are walking at any moment (stagger their start offsets so they do not all pause together). Each person is jointed (head, torso, two arms, two legs) and their feet stay planted: the step phase comes from distance walked divided by stride length, never from time alone. Walking speed is about 0.45 units a second and one step is about 0.27 units. They follow smooth routes of (u, v) points, pause briefly at the ends, turn and come back. Nobody walks through a wall, a prop or water, and routes are offset so people pass beside each other, not through each other.
 - A few people doing something: taking a photo, waving, sitting, selling.
 - One signature event on a loop of 10 to 25 seconds with a clear before and after (a gate opens, a train passes, a fountain builds, a flag is raised, a boat docks).
 - Two or three small motions: a flag, fountain jets, birds, smoke, sparkle on glass.
-- Everything is a pure function of time t in seconds. Use a seeded random function; never call Math.random() or read the clock while drawing. The tile must loop and must draw any time on request.
+- Everything is a pure function of time t in seconds. Use a seeded random function; never call Math.random() or read the clock while drawing. Pick one master loop (24 or 48 seconds) and make every cycle divide it, so the whole tile repeats cleanly. The tile must draw any time on request.
 
 PAGE
 - A full-window canvas, sharp on high-density screens, the tile centred and scaled to fit.
@@ -81,7 +91,7 @@ Tile: LANDMARK for the city CITY_ID (lowercase, for example rome), at grid posit
 
 READ FIRST
 - docs/GRID-RULES.md (the rules every tile obeys) and docs/KIT.md (the drawing kit and the tools).
-- lib/vec-kit.js and lib/vec-people.js in full.
+- lib/vec-kit.js (the Kit class: skim every method once, it is about 650 lines) and the top of lib/vec-people.js (poses and outfits).
 - vtiles/example/0_0.js for the smallest complete tile.
 - vtiles/paris/0_0.js and vtiles/paris/eiffel.js for the quality bar: how a landmark is built from solids and paths, how routes avoid props, how many people there are.
 
@@ -92,14 +102,15 @@ WHAT TO WRITE
 
 THE TILE
 - Plan on the grid before drawing: list every object with its (u, v) footprint and height. The landmark in the back half, open ground with people in the front half, everything on the ground inside 0.3 to 9.7, every wall along u or v.
-- Model the landmark's real features so it is recognised at once: silhouette, proportions, rooflines, arches, windows, ornament, materials. Use real reference knowledge of the place for WHAT is there; the grid decides WHERE it sits.
+- Model the landmark's real features so it is recognised at once: silhouette, proportions, rooflines, arches, windows, ornament, materials. Use real reference knowledge of the place for WHAT is there; the grid decides WHERE it sits. A curved landmark is built from points on a ground ellipse (docs/KIT.md, "Curved landmarks").
+- Flags: k.flag defaults to a French tricolour. Pass cols for the right flag.
 - Other buildings get windows, roofs, awnings and signs with short real text.
 - 12 to 20 people moving at any moment on routes that avoid walls, props and water, plus a few people doing something.
 - One signature event on a 10 to 25 second loop with a clear before and after, and two or three small motions.
 - A pure function of t: rng(seed) for randomness, never Math.random() or the clock.
 
 LOOK AT IT, EVERY STEP
-- node tools/trace-shot.mjs CITY_ID GX,GY --mode code --t 3          -> out/trace/..._code.png. Open it and look.
+- node tools/trace-shot.mjs CITY_ID GX,GY --mode code --t 3          -> out/trace/CITY_ID_GX_GY_code.png. Open it and look. (Each run overwrites that file; add --out out/trace/NAME.png to keep one.)
 - node tools/trace-shot.mjs CITY_ID GX,GY --mode code --t 3 --crop x,y,w,h --scale 3     -> zoomed crop of the 1024 canvas.
 - node tools/trace-shot.mjs CITY_ID GX,GY --frames 3,3.033,3.067,3.1,3.133                -> consecutive frames: check walking, collisions and depth order in the busy areas.
 - node tools/audit-tiles.mjs CITY_ID GX,GY                            -> the grid audit line and out/audit/CITY_ID_GX_GY.jpg with the true footprint in magenta.

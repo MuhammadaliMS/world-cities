@@ -5,7 +5,7 @@ Read both files: they are short and commented. This page is the map.
 
 ## Space
 
-- One tile is 10 x 10 ground units. `u` runs to the back-right corner, `v` to the back-left corner, `z` is up.
+- One tile is 10 x 10 ground units, drawn as a diamond. `(0, 0)` is the back corner (top of the diamond), `u` runs from there to the right corner, `v` to the left corner, and `(10, 10)` is the front corner nearest the viewer. `z` is up.
 - `P(u, v, z)` projects tile units to pixels on a 1024 x 1024 canvas:
   `x = 512 + (u - v) * 45`, `y = 405 + (u + v) * 45 * 0.577 - z * 45 * 0.94`.
 - From the camera you see three faces of a box: TOP, LEFT (the `v + dv` face) and RIGHT (the `u + du` face).
@@ -50,8 +50,34 @@ front edge (`u + v`).
 | Vehicles and air | `car`, `bike`, `bird`, `circlingBird` |
 | Low level | `path`, `line`, `circle`, `ell`, `hatch`, `q(depth, fn)`, `k.ctx` (the canvas context), `k.t` |
 
+Signatures and the options you will reach for first (every method takes a last options object; read the
+method for the rest):
+
+| Method | Notes |
+|---|---|
+| `box(u, v, z, du, dv, dz, colour, o)` | `left`, `right`, `top` override face colours; `hatch: false`, `shadow: false`, `noTop: true` |
+| `windows(u, v, z, du, dv, dz, o)` | on the box with the same numbers: `side: "L"` or `"R"`, `cols`, `rows`, `lit` (share of lit windows), `arch`, `balcony`, `color` |
+| `gable` / `hip (u, v, z, du, dv, h, colour)` | a roof on a box top |
+| `cyl(u, v, z, r, h, colour)`, `dome(u, v, z, r, h, colour)`, `cone(u, v, z, r, h, colour)` | round solids on a ground ellipse |
+| `ell(u, v, z, r, fill)` | a flat ellipse lying on the ground plane (a pond, a plaza ring) |
+| `tree(u, v, { r, h, col, seed })`, `conifer(u, v, { h, r, col })`, `palm(u, v, { h })` | |
+| `hedge(u, v, du, dv, { h, col })`, `flowers(u, v, du, dv)`, `flowerCurve(points, width, { cols })` | |
+| `lamp(u, v, { h, col })`, `bench(u, v, { along: "u" or "v", len })`, `umbrella(u, v, { h, r, col })` | |
+| `flag(u, v, z, { h, w, fh, cols, horizontal })` | **the default is a blue, white and red tricolour**: pass `cols: [..]` for your own flag |
+| `awning(u, v, z, len, { stripes, depth, drop })` | a striped awning on a left face, running along `u` |
+| `car(u, v, dir, colour, { len, wid, h })` | `dir` is `"u+"`, `"u-"`, `"v+"` or `"v-"`; a bus is a longer, taller car |
+
 `box` returns its three face polygons, so you can draw more on a face. `k.ctx` is the real canvas context:
 for anything the kit lacks, project anchors with `P()` and draw paths yourself (see `vtiles/paris/eiffel.js`).
+
+**Curved landmarks** (an arena, a rotunda, a wheel) have no ready-made primitive. Build the curve from points
+on a ground ellipse: for an angle `a`, the wall point is `P(cu + ru * cos(a), cv + rv * sin(a), z)`. Draw the
+wall as a ring of short quads between consecutive angles, back half first, then the inside, then the front
+half. The centre and radii are in tile units, so the curve still obeys the grid.
+
+**Some existing tiles import a `<gx>_<gy>.ground.js` file** (lawn, water and path outlines used by
+`k.groundTrace`). Those were traced from reference paintings. You do not need them: lay out your own ground
+with `k.slab`, `k.ground` and `k.water` as `vtiles/example/0_0.js` does.
 
 ## People
 
@@ -105,7 +131,7 @@ The tools need Node, `npm install` and `npx playwright install chromium`.
 
 | Command | What you get |
 |---|---|
-| `node tools/trace-shot.mjs <city> <gx,gy> --mode code --t 3` | one tile at time 3 s, saved to `out/trace/` |
+| `node tools/trace-shot.mjs <city> <gx,gy> --mode code --t 3` | one tile at time 3 s, saved as `out/trace/<city>_<gx>_<gy>_code.png`. Each run overwrites that file: add `--out out/trace/name.png` to keep several |
 | `... --crop x,y,w,h --scale 3` | a zoomed crop (pixels of the 1024 canvas) |
 | `... --frames 3,3.033,3.067,3.1,3.133` | a strip of consecutive frames, to check walking and collisions |
 | `... --video 6 --fps 60` | a 6 second clip of the tile |
