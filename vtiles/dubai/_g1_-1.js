@@ -123,6 +123,9 @@ export function makeMuseum(o = {}) {
     draw(k, t) {
       const c = k.ctx; c.lineJoin = "round"; c.lineCap = "round";
       const pp = (i, j) => P(V[i][j][0], V[i][j][1], V[i][j][2]);
+      if (k.night) { // the ring glows: cool white off the steel, gold off the calligraphy windows
+        for (let i = 0; i < NT; i += 5) { const v3 = V[i][Math.floor(NP / 2)]; k.glow(v3[0], v3[1], v3[2], 0.95, i % 10 ? "#cfe0ff" : "#ffe0a0", 0.2); }
+      }
       const fillp = (pts, fill, stroke) => { c.beginPath(); pts.forEach((p, n) => (n ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]))); c.closePath(); c.fillStyle = fill; c.fill(); if (stroke) { c.strokeStyle = stroke; c.lineWidth = 0.8; c.stroke(); } };
       for (const q of items) {
         if (!q.front) continue;
@@ -135,10 +138,12 @@ export function makeMuseum(o = {}) {
           const gl = Math.max(0, Math.sin(a * 2 + f * 0.6 - t * 0.9) - 0.93) * 9 + Math.max(0, Math.sin(a * 3 - f * 0.8 - t * 0.55 + 2) - 0.95) * 10;
           if (gl > 0.02) col = mixc(col, [255, 255, 255], Math.min(0.7, gl * lam));
           fillp([pp(q.i, q.j), pp(q.i1, q.j), pp(q.i1, q.j1), pp(q.i, q.j1)], rgb(col), rgb(col));
+          if (k.night) k.lit(() => fillp([pp(q.i, q.j), pp(q.i1, q.j), pp(q.i1, q.j1), pp(q.i, q.j1)], `rgba(214,228,255,${0.34 + 0.3 * lam})`));
         } else {
           const pts = q.v3.map((p) => P(p[0], p[1], p[2])), g = clamp(lam * 0.8);
           const col = mixc(hexc("#0f1c30"), hexc("#35557a"), g);
           fillp(pts, rgb(col), rgb(col));
+          if (k.night) k.lit(() => fillp(pts, "rgba(255,204,96,0.97)"));
           c.strokeStyle = `rgba(215,232,245,${0.35 + 0.4 * lam})`; c.lineWidth = 0.7; c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); c.lineTo(pts[1][0], pts[1][1]); c.stroke();
         }
       }

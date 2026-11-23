@@ -11,10 +11,11 @@
 <body>
 <canvas id="c"></canvas>
 <script type="module">
-// trace.html?city=paris&tile=0,0&mode=split|onion|ref|code|grid|codegrid&t=2&scale=1&crop=x,y,w,h
+// trace.html?city=paris&tile=0,0&mode=split|onion|ref|code|grid|codegrid&t=2&scale=1&crop=x,y,w,h&night=1
 // ref = the Codex picture warped into canonical tile space by its slab corners (manifest.json).
 import { Kit, CTS, P, INK } from "./lib/vec-kit.js";
 import { createPaperTexture } from "./lib/iso-engine.js";
+import { setNight, nightSky, glow } from "./lib/night.js";
 
 const q = new URLSearchParams(location.search);
 const city = q.get("city") || "paris";
@@ -72,8 +73,20 @@ window.ready = (async () => {
     ctx.restore();
   }
   const drawRef = (alpha = 1) => { if (!ref) return; ctx.save(); ctx.globalAlpha = alpha; ctx.setTransform(...(() => { const t = ctx.getTransform(); return [t.a * A[0] + t.c * A[1], t.b * A[0] + t.d * A[1], t.a * A[2] + t.c * A[3], t.b * A[2] + t.d * A[3], t.a * A[4] + t.c * A[5] + t.e, t.b * A[4] + t.d * A[5] + t.f]; })()); ctx.drawImage(ref, 0, 0); ctx.restore(); };
-  const drawPaper = () => ctx.drawImage(paper, 0, 0);
-  const drawCode = (t) => { if (!draw) return; const k = new Kit(ctx, t); draw(k, t); k.flush(); };
+  const drawPaper = () => (drawPaperOrSky ? drawPaperOrSky() : ctx.drawImage(paper, 0, 0));
+  // ?night=1: the tile at night, with its hints from cities/<city>.js
+  const NIGHT = q.has("night") ? Number(q.get("night") || 1) : 0;
+  let HINTS = null;
+  if (NIGHT) { try { HINTS = (await import(`./cities/${city}.js?v=${Date.now()}`)).default.tiles[tile]?.night || null; } catch {} }
+  const [gx, gy] = tile.split(",").map(Number);
+  const drawCode = (t) => {
+    if (!draw) return;
+    if (NIGHT) setNight(ctx, NIGHT, { tile: true, hints: HINTS, seed: (gx + 2) * 7 + (gy + 2) * 13, P });
+    const k = new Kit(ctx, t); draw(k, t); k.flush();
+    if (NIGHT && HINTS?.lights) for (const L of HINTS.lights) { const [x, y] = P(L.u, L.v, L.z || 0); glow(ctx, x, y, (L.r ?? 1) * CTS.S, L.col || "#ffd59a", (L.a ?? 0.6) * NIGHT, L.flat ? CTS.YS : 1); }
+    if (NIGHT) setNight(ctx, 0);
+  };
+  const drawPaperOrSky = NIGHT ? () => { setNight(ctx, 0); nightSky(ctx, CTS.W, CTS.H, NIGHT, "#f5f0e5"); } : null;
   const grid = () => {
     ctx.save();
     // pixel grid every 50

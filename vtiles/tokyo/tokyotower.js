@@ -147,6 +147,13 @@ export function makeTower(C) {
     for (let i = 0; i < n; i++) { const f0 = i / n, f1 = (i + 1) / n; const a = [lerp(base[0], tip[0], f0), lerp(base[1], tip[1], f0)], b = [lerp(base[0], tip[0], f1), lerp(base[1], tip[1], f1)]; c.lineCap = "butt"; c.strokeStyle = INK; c.lineWidth = 4.4 - f0 * 2.2; c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke(); c.strokeStyle = i % 2 ? WHITE : RED; c.lineWidth = 3 - f0 * 1.7; c.stroke(); }
     for (const [z, d] of [[ZT + 1.3, 1], [ZT + 1.6, -1], [ZT + 1.9, 1]]) { const [x, y] = P(C, C, z); c.fillStyle = "#ecebe6"; c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.ellipse(x + d * 6, y, 3, 4.4, 0, 0, 6.3); c.fill(); c.stroke(); }
     const on = Math.sin(t * 3.2) > 0, [bx, by] = tip;
+    if (k.night) {
+      k.glow(C, C, ZT + 3.1, 1.1, "#ff4030", on ? 1 : 0.3);
+      k.glow(C, C, ZT + 0.4, 1.6, "#ffb060", 0.55);
+      k.glow(C, C, ZD + 0.4, 2.2, "#ffa040", 0.5);
+      k.glow(C, C, 5.0, 3.4, "#ff9a3a", 0.3);
+      k.glow(C, C, 0.1, 3.8, "#ffae5a", 0.38, { flat: true });
+    }
     if (on) { const g = c.createRadialGradient(bx, by, 0, bx, by, 24); g.addColorStop(0, "rgba(255,70,50,0.8)"); g.addColorStop(1, "rgba(255,70,50,0)"); c.fillStyle = g; c.beginPath(); c.arc(bx, by, 24, 0, 6.3); c.fill(); }
     c.fillStyle = on ? "#ff3b2a" : "#8a2a22"; c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.arc(bx, by, 2.8, 0, 6.3); c.fill(); c.stroke();
   }

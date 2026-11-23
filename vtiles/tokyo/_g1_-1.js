@@ -300,7 +300,9 @@ function bodySeg(k, a, b, s, vc, W, H) {
   for (let i = 0; i < n; i++) {
     const wa = s.a + len * (0.1 + i * 0.1), wb = wa + len * 0.06; if (wa < a || wb > b) continue;
     k.poly([[wa, v1, TZ + H * 0.5], [wb, v1, TZ + H * 0.5], [wb, v1, TZ + H * 0.8], [wa, v1, TZ + H * 0.8]], "#34445f", { lw: 0.7, wobble: 0 });
+    if (k.night) k.lit(() => k.poly([[wa, v1, TZ + H * 0.5], [wb, v1, TZ + H * 0.5], [wb, v1, TZ + H * 0.8], [wa, v1, TZ + H * 0.8]], (i * 3 + Math.round(a * 7)) % 11 === 4 ? "#a9bddd" : "#ffe8a8", { lw: 0.7, wobble: 0 }));
   }
+  k.glow(s.a + len * 0.5, v1 + 0.2, TZ + H * 0.2, 1.0, "#ffe0a0", 0.12, { flat: true });
   if (s.a >= VIA.u0 && a === s.a) k.line3([[a, v1, TZ + 0.02], [a, v1, TZ + H]], { stroke: "rgba(42,36,32,0.55)", lw: 1, wobble: 0 });
 }
 function noseSeg(k, a, b, s, vc, W, H, tipAtLow) {

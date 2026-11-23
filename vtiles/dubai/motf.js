@@ -199,6 +199,7 @@ export function makeMuseum(o = {}) {
       const g = glintAt(q.cx, q.cy, t) * (0.35 + 0.65 * q.diff);
       const col = rgb(mixc(q.col, [255, 255, 250], Math.min(0.85, g)));
       pathOf(c, q.pts); c.closePath(); c.fillStyle = col; c.fill(); c.strokeStyle = col; c.lineWidth = 0.8; c.stroke();
+      if (k.night) k.lit(() => { pathOf(c, q.pts); c.closePath(); c.fillStyle = `rgba(214,226,255,${0.3 + 0.3 * q.diff})`; c.fill(); });
     }
     c.lineJoin = "round"; c.lineCap = "round";
     c.strokeStyle = "rgba(70,78,100,0.2)"; c.lineWidth = 0.6;
@@ -206,6 +207,7 @@ export function makeMuseum(o = {}) {
     for (const wv of sec.wins) {
       const g = glintAt(wv.cx, wv.cy, t);
       pathOf(c, wv.pts); c.closePath(); c.fillStyle = rgb(mixc(wv.col, [236, 246, 255], Math.min(0.9, g * 1.1))); c.fill();
+      if (k.night) k.lit(() => { pathOf(c, wv.pts); c.closePath(); c.fillStyle = "rgba(255,206,100,0.97)"; c.fill(); });
     }
     for (const e of sec.edges) {
       if (e.spine) { pathOf(c, e.spine); c.strokeStyle = "rgba(225,240,250,0.45)"; c.lineWidth = 1.1; c.stroke(); continue; }
@@ -326,6 +328,10 @@ export function makeMuseum(o = {}) {
 
   function queue(k, t) {
     if (!cache) build();
+    if (k.night) { // the ring glows: white light bleeding off the steel, calligraphy gold in the windows
+      for (let i = 0; i < 20; i++) { const p = cen((i / 20) * 6.2832); k.glow(p[0], p[1], p[2], 0.95, i % 2 ? "#cfe0ff" : "#ffe2a8", 0.2); }
+      k.glow(T.C[0], T.C[1], T.C[2], 2.2, "#bcd2ff", 0.14);
+    }
     for (const sec of cache.sectors) if (sec.quads.length) k.q(sec.key, () => drawSector(k, sec, t));
   }
   // the torus' shadow on the mound/plaza (light from the upper left -> falls toward +u)

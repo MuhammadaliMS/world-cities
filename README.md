@@ -12,6 +12,13 @@ person, boat and train is drawn and animated in code with Canvas 2D. No images, 
 | ![London](docs/img/london.jpg) | ![Paris](docs/img/paris.jpg) |
 | ![Dubai](docs/img/dubai.jpg) | ![Shanghai](docs/img/shanghai.jpg) |
 
+And every city has a night mode: the lamps, windows, signs and landmarks light up.
+
+| | |
+|---|---|
+| ![Tokyo at night](docs/img/tokyo-night.jpg) | ![Paris at night](docs/img/paris-night.jpg) |
+| ![London at night](docs/img/london-night.jpg) | ![Dubai at night](docs/img/dubai-night.jpg) |
+
 Each city is nine landmark tiles on one isometric grid with streets between them: 45 tiles in all. Things
 happen in them. Shibuya crossing floods on the green light, Tower Bridge opens for a boat, the Shinkansen
 passes Mt Fuji, the fountain builds under the Burj Khalifa.
@@ -27,7 +34,8 @@ python3 -m http.server 8080
 ```
 
 Then open http://localhost:8080/ for the gallery, or http://localhost:8080/city.html?city=tokyo for one city
-(`tokyo`, `london`, `paris`, `dubai`, `shanghai`). Add `&t=48` for one frozen frame.
+(`tokyo`, `london`, `paris`, `dubai`, `shanghai`). Add `&t=48` for one frozen frame, `&night` for night (or use the
+Night button).
 
 ## Make your own city
 
@@ -53,6 +61,10 @@ are the smallest complete city and tile, made to be copied.
   and rendered frame by frame to video.
 - **The city stage** (`lib/world-stage.js`, `lib/city-base.js`): the plate, the streets, cars that never meet
   at a junction, walkers on the pavements, and a camera that fits each tile's close-up to its real silhouette.
+- **Night** (`lib/night.js`): one pass over the drawing calls turns every colour moonlit, lights about half
+  of the small window-shaped glass, and leaves people, cars and water alone. Lamps and cars carry their own
+  light. Each city then lights its landmarks with a few hints per tile (`cities/<id>.js`, `night`), so the
+  Eiffel Tower turns gold and Tokyo Tower orange. Night can fade in from day: it is one number from 0 to 1.
 - **The live player** (`lib/live-city.js`, `lib/tile-worker.js`): drawing a whole city on one thread takes
   40-90 ms a frame, so each tile is drawn by a worker and sent back as a bitmap. The page thread draws only
   the streets and stacks the tiles in depth order, so the camera stays smooth.
@@ -79,6 +91,8 @@ also needs `ffmpeg`.
 node tools/trace-shot.mjs tokyo 0,0 --mode code --t 3      # one tile -> out/trace/
 node tools/audit-tiles.mjs tokyo 0,0                       # the grid audit
 node render.mjs tokyo --fps 60                             # the film -> out/tokyo.mp4
+node render.mjs tokyo --night 1                            # the night film -> out/tokyo-night.mp4
+node tools/trace-shot.mjs tokyo 0,-1 --mode code --night 1 # one tile at night
 ```
 
 ## Notes

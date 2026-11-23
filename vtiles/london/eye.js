@@ -144,6 +144,11 @@ export function makeEye() {
       c.strokeStyle = WHITE; c.lineWidth = 1.4; c.stroke();
       capsule(c, p[0], p[1], 3 + i, t, a);
     }
+    if (k.night) { // night: lit rim bulbs and glowing pods
+      for (let i = 0; i < 48; i++) { const a = (i / 48) * TAU, q = rp3(a, vF + 0.05); k.glow(q[0], q[1], q[2], 0.2, i % 2 ? "#9fd2ff" : "#e6f4ff", 0.75); }
+      for (const [a] of caps) k.glow(CU + RAD * Math.cos(a), vF + 0.5, HZ + RAD * Math.sin(a) - 1.0, 0.55, "#ffe2a8", 0.55);
+      k.glow(CU, vF + 0.28, HZ, 0.7, "#cfe8ff", 0.6);
+    }
   }
 
   // ---------- glass boarding pavilion under the wheel ----------

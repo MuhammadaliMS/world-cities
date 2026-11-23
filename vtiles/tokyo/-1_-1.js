@@ -1,5 +1,6 @@
 // TOKYO · Shibuya Scramble Crossing (traced over assets/tokyo/-1_-1.png) — polish pass
 import { P, CTS, INK, shade, lerp, clamp, rng, hash, smooth } from "../../lib/vec-kit.js";
+import { glow as nightGlow } from "../../lib/night.js";
 import { mbox, mwin, mband, faceDraw, faceSign, petals, vending, bollard, FONT, acUnit, antenna } from "./_props.js";
 import { extrude, roundedRect, screenRun, edgeSign, edgeAwning, roofKit, glassHouse, roofGarden, mural } from "./_t-1_-1.js";
 import { stdProj } from "./_props.js";
@@ -43,8 +44,9 @@ function cylinderTower(k, t) {
   // curved mural screen on the front
   const w = rx * 1.45, sy0 = y - 92, sy1 = y - 200, bow = 14, left = x - w / 2, right = x + w / 2;
   c.save(); c.beginPath(); c.moveTo(left, sy0 - bow * 0.2); c.quadraticCurveTo(x, sy0 + bow * 1.1, right, sy0 - bow * 0.2); c.lineTo(right, sy1 - bow * 0.2); c.quadraticCurveTo(x, sy1 + bow * 1.1, left, sy1 - bow * 0.2); c.closePath(); c.clip();
-  c.translate(left, sy1 - 4); mural(c, w, sy0 - sy1 + 26, t, 0, ["渋谷", "SHIBUYA", "TOKYO"]);
+  c.translate(left, sy1 - 4); if (k.night) k.lit(() => mural(c, w, sy0 - sy1 + 26, t, 0, ["渋谷", "SHIBUYA", "TOKYO"])); else mural(c, w, sy0 - sy1 + 26, t, 0, ["渋谷", "SHIBUYA", "TOKYO"]);
   c.restore();
+  if (k.night) nightGlow(c, x, (sy0 + sy1) / 2, 70, "#ff8ad0", 0.3);
   c.beginPath(); c.moveTo(left, sy0 - bow * 0.2); c.quadraticCurveTo(x, sy0 + bow * 1.1, right, sy0 - bow * 0.2); c.lineTo(right, sy1 - bow * 0.2); c.quadraticCurveTo(x, sy1 + bow * 1.1, left, sy1 - bow * 0.2); c.closePath(); c.strokeStyle = INK; c.lineWidth = 1.8; c.stroke();
   // roof ring + plant
   c.beginPath(); c.ellipse(x, yt, rx - 5, ry - 3, 0, 0, 6.3); c.strokeStyle = "rgba(60,50,40,0.5)"; c.lineWidth = 1.2; c.stroke();

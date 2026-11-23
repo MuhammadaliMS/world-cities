@@ -2,6 +2,7 @@
 import { P, CTS, INK, shade, lerp, clamp, rng } from "../../lib/vec-kit.js";
 import GROUND from "./0_0.ground.js";
 import { makeEiffel } from "./eiffel.js";
+import { sparkle } from "./_props.js";
 const W = GROUND.walks;
 // pick traced routes by their end points (robust to re-tracing), and chain them end to end
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -158,6 +159,20 @@ export default function draw(k, t) {
   // ---------- the tower (one depth slot at its centre) ----------
   k.q(2 * C - 2.6, () => EIFFEL.drawBack(k, t));
   k.q(2 * C + 2.7, () => EIFFEL.draw(k, t));
+  if (k.night) {
+    // hourly sparkle: white twinkles over the tower for ~4 s of every 20 s loop
+    const w = (t % 20) / 4;
+    if (w < 1) {
+      const env = Math.sin(w * Math.PI);
+      k.q(2 * C + 2.8, () => k.lit(() => {
+        for (let i = 0; i < 46; i++) {
+          const z = 0.4 + 12.2 * ((i * 0.618034) % 1), spread = 2.1 * Math.max(0.04, 1 - z / 13.2) ** 1.1;
+          const ang = i * 2.399, [x, y] = P(4.85 + Math.cos(ang) * spread, 4.85 + Math.sin(ang) * spread, z);
+          sparkle(k, x, y, w * 26 + i * 1.9, 0.9 + 0.8 * env);
+        }
+      }));
+    }
+  }
 
   // ---------- front props ----------
   k.q(10.6, () => picnic(k, 2.6, 8.4, t, "#eaa6ae", 1));

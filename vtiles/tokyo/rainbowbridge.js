@@ -106,6 +106,13 @@ function cables(k, v, deckEdge) {
   for (const pts of [sl, main, sr]) { L3(c, pts, 3.4, "#e9e7df"); }
   // second strand just below (the painted cables read as a doubled line)
   for (const pts of [sl, main, sr]) { L3(c, pts.map(([u, vv, z]) => [u, vv, z - 0.1]), 1.6, "#cfccc2", false); }
+  if (k.night) {
+    // the Rainbow Bridge: white-lit cables with a slow rainbow of lamps
+    const RB = ["#ff5a5a", "#ffa040", "#ffe060", "#60e080", "#50b8ff", "#b080ff"];
+    k.lit(() => { for (const pts of [sl, main, sr]) pts.forEach(([u, vv, z], i) => { const [x, y] = P(u, vv, z); c.fillStyle = RB[(i + Math.floor(k.t * 2)) % 6]; c.beginPath(); c.arc(x, y, 1.9, 0, 6.3); c.fill(); }); });
+    for (let u = a; u <= b; u += 0.9) k.glow(u, v, cableZ(u), 0.55, RB[Math.round(u * 3) % 6], 0.35);
+    k.glow(a, v, BR.H, 0.8, "#fff4d8", 0.7); k.glow(b, v, BR.H, 0.8, "#fff4d8", 0.7);
+  }
   // hangers
   const hang = (u) => { const z = cableZ(u); L3(c, [[u, v, z], [u, v, BR.zTop - 0.05], [u, deckEdge, BR.zMid]], 0.9, "#b8b4a8", true); };
   for (let u = a + 0.45; u < b - 0.3; u += 0.36) hang(u);

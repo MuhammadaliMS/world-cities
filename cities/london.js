@@ -17,6 +17,10 @@ const C = {
   glass: "#9cc1cf",
 };
 
+// night: every shade variant the engine can derive from a base colour (for exact-colour floodlighting)
+const NPCT = Array.from({ length: 61 }, (_, i) => Math.round((i - 30)) / 100);
+const nv = (...bases) => bases.flatMap((b) => NPCT.map((p) => shade(b, p)));
+
 // High-Fidelity Gothic Big Ben (Elizabeth Tower) with vertical tracery, golden pinnacles & ticking dial!
 function drawBigBen(pen, cx, cy, t) {
   pen.box(cx - 0.72, cy - 0.72, 0, 1.44, 1.44, 4.48, C.honey, {
@@ -70,6 +74,20 @@ export default {
     // CENTER (0,0): Big Ben, Palace of Westminster & Red Phone Box Micro-Story
     "0,0": {
       name: "Big Ben & Westminster",
+      night: {
+        flood: [
+          { cols: nv("#dcb672", "#f0d59c", "#c9a060", "#a9813f", "#7b5b2b", "#e3bd52", "#f7df8c"), tint: "#ffcf78", k: 0.8, gain: 1.45 },
+        ],
+        neon: ["#fbf6e6", "#f3d57a"],
+        lights: [
+          { u: 8.8, v: 2.5, z: 6.5, r: 0.9, col: "#ffe2a0", a: 0.85 },
+          { u: 9.4, v: 1.9, z: 6.5, r: 0.9, col: "#ffe2a0", a: 0.85 },
+          { u: 5.0, v: 2.2, z: 2.0, r: 3.0, col: "#ffbf60", a: 0.2 },
+          { u: 1.15, v: 1.85, z: 5.0, r: 1.6, col: "#ffbf60", a: 0.2 },
+          { u: 5.0, v: 3.2, z: 0.1, r: 2.6, col: "#ffc670", a: 0.22, flat: true },
+        ],
+        windows: 0.45,
+      },
       camZ: 2.3,
       estElements: 235,
       draw(pen, t) {
@@ -129,6 +147,20 @@ export default {
     // (-1,-1): Tower Bridge with Suspender Rods, Animated Drawbridge & Tall Sailboat!
     "-1,-1": {
       name: "Tower Bridge & The Thames",
+      night: {
+        flood: [
+          { cols: nv("#e8d8b2", "#efe0bc", "#d9c7a0", "#bfa97c", "#d8c79c", "#d8c8a0", "#cdb88f", "#a8946c", "#bba682", "#fbf3dc"), tint: "#ffd48a", k: 0.8, gain: 1.45 },
+          { cols: nv("#5d90c4", "#3d6c9c"), tint: "#8fd0ff", k: 0.85, gain: 1.7 },
+          { cols: nv("#e2bd55"), tint: "#ffd270", k: 0.8, gain: 1.5 },
+        ],
+        lights: [
+          { u: 3.05, v: 4.5, z: 6.5, r: 1.8, col: "#ffc878", a: 0.22 },
+          { u: 6.95, v: 4.5, z: 6.5, r: 1.8, col: "#ffc878", a: 0.22 },
+          { u: 5.0, v: 4.5, z: 2.6, r: 1.6, col: "#8fd0ff", a: 0.3 },
+          { u: 5.0, v: 4.5, z: 0.0, r: 3.5, col: "#6fa8ff", a: 0.18, flat: true },
+        ],
+        windows: 0.4,
+      },
       camZ: 1.9,
       estElements: 225,
       draw(pen, t) {
@@ -190,6 +222,17 @@ export default {
     // (0,-1): The London Eye & South Bank
     "0,-1": {
       name: "The London Eye & South Bank",
+      night: {
+        flood: [
+          { cols: nv("#f4f1e8", "#cfcabb", "#d8d3c4", "#fbf9f2", "#c9c4b4", "#e8e3d6"), tint: "#a8d8ff", k: 0.75, gain: 1.6 },
+          { cols: nv("#d6e6ee", "#a7bdca", "#7d9bad", "#a9c7d4", "#bcd7e0", "#8eaebe", "#dcecf1"), tint: "#ffe2a8", k: 0.8, gain: 1.5 },
+        ],
+        lights: [
+          { u: 5.0, v: 3.4, z: 5.4, r: 4.6, col: "#7fb8ff", a: 0.1 },
+          { u: 5.0, v: 4.2, z: 0.0, r: 3.2, col: "#8fc4ff", a: 0.2, flat: true },
+        ],
+        windows: 0.5,
+      },
       camZ: 2.0,
       estElements: 220,
       draw(pen, t) {
@@ -225,6 +268,17 @@ export default {
     // (1,-1): Buckingham Palace & Changing of the Guard!
     "1,-1": {
       name: "Buckingham Palace & Guards",
+      night: {
+        flood: [
+          { cols: nv("#e8dec6", "#f3ebd8", "#cdc1a3", "#e0d4b8", "#f1e8d2", "#efe6cf", "#dfd4b8", "#f6efdc", "#d9ceb4"), tint: "#ffd890", k: 0.8, gain: 1.4 },
+          { cols: nv("#d9b24a", "#e6bd45", "#e8b23a"), tint: "#ffd060", k: 0.85, gain: 1.5 },
+        ],
+        lights: [
+          { u: 5.0, v: 1.6, z: 2.0, r: 4.2, col: "#ffc873", a: 0.2 },
+          { u: 5.0, v: 6.0, z: 0.1, r: 2.6, col: "#ffcf80", a: 0.22, flat: true },
+        ],
+        windows: 0.5,
+      },
       camZ: 1.7,
       estElements: 230,
       draw(pen, t) {
@@ -276,6 +330,19 @@ export default {
     // (1,0): St. Paul's Cathedral & Millennium Footbridge
     "1,0": {
       name: "St. Paul's & Millennium Bridge",
+      night: {
+        flood: [
+          { cols: nv("#ecd6b0", "#f8ead0", "#d4b88e", "#b79c70", "#f6e8c8", "#e0c89a", "#a88e64"), tint: "#ffe0a0", k: 0.85, gain: 1.5 },
+          { cols: nv("#8f95a6", "#a9aebd", "#5f6475"), tint: "#fff0cc", k: 0.7, gain: 1.9 },
+          { cols: nv("#e3b53f", "#b98a22"), tint: "#ffd060", k: 0.85, gain: 1.5 },
+        ],
+        lights: [
+          { u: 4.0, v: 2.55, z: 4.2, r: 2.4, col: "#ffd890", a: 0.3 },
+          { u: 4.0, v: 2.55, z: 6.0, r: 0.7, col: "#fff0c0", a: 0.6 },
+          { u: 4.0, v: 5.0, z: 0.1, r: 3.0, col: "#ffd080", a: 0.2, flat: true },
+        ],
+        windows: 0.4,
+      },
       camZ: 1.9,
       estElements: 225,
       draw(pen, t) {
@@ -319,6 +386,22 @@ export default {
     // (1,1): Covent Garden Victorian Market Piazza & Street Juggler
     "1,1": {
       name: "Covent Garden Piazza",
+      night: {
+        flood: [
+          { cols: nv("#e8d5a9", "#f3e6c3", "#cbb386"), tint: "#ffd48a", k: 0.6, gain: 1.35 },
+          { cols: nv("#5d7486", "#6f9fb5", "#6b7f8e", "#d6eeec"), tint: "#ffd890", k: 0.75, gain: 1.5 },
+        ],
+        neon: ["#ffe596", "#ffc65e", "#ffe9a8", "#ffe3a0", "#f7b658"],
+        lights: [
+          { u: 5.0, v: 2.0, z: 3.2, r: 2.2, col: "#ffd080", a: 0.3 },
+          { u: 5.0, v: 4.2, z: 1.0, r: 1.2, col: "#ffc870", a: 0.35 },
+          { u: 1.6, v: 5.8, z: 1.6, r: 1.6, col: "#ffb868", a: 0.4 },
+          { u: 6.2, v: 8.2, z: 1.4, r: 1.4, col: "#ffc070", a: 0.4 },
+          { u: 5.0, v: 6.0, z: 0.0, r: 3.8, col: "#ffc070", a: 0.22, flat: true },
+        ],
+        nowin: [{ box: [2.5, 0, 7.5, 2.6, 10] }],
+        windows: 0.55,
+      },
       camZ: 1.6,
       estElements: 230,
       draw(pen, t) {
@@ -363,6 +446,18 @@ export default {
     // (0,1): Hyde Park & Organic Serpentine Lake
     "0,1": {
       name: "Hyde Park & Serpentine Lake",
+      night: {
+        flood: [
+          { cols: nv("#2b5b47", "#4f8b6f", "#d9b24a"), tint: "#ffd890", k: 0.75, gain: 1.5 },
+        ],
+        lights: [
+          { u: 3.3, v: 2.6, z: 1.6, r: 1.5, col: "#ffd48a", a: 0.55 },
+          { u: 3.3, v: 2.6, z: 0.0, r: 2.1, col: "#ffc878", a: 0.3, flat: true },
+          { u: 6.8, v: 4.7, z: 0.3, r: 0.9, col: "#ffb860", a: 0.3, flat: true },
+          { u: 1.3, v: 7.6, z: 0.3, r: 0.8, col: "#ffb860", a: 0.25, flat: true },
+        ],
+        windows: 0.15,
+      },
       camZ: 1.4,
       estElements: 215,
       draw(pen, t) {
@@ -407,6 +502,19 @@ export default {
     // (-1,1): The Shard, The Gherkin & City of London
     "-1,1": {
       name: "The Shard & City Skyline",
+      night: {
+        flood: [
+          { box: [4.4, 0.95, 6.2, 2.75, 12.0], tint: "#cfe6ff", k: 0.55, gain: 1.5 },
+          { box: [7.2, 0.5, 9.4, 2.7, 7.8], tint: "#bcd8ff", k: 0.5, gain: 1.4 },
+        ],
+        lights: [
+          { u: 5.4, v: 2.0, z: 11.4, r: 0.9, col: "#ffffff", a: 0.85 },
+          { u: 5.4, v: 2.0, z: 6.0, r: 2.6, col: "#9fc8ff", a: 0.16 },
+          { u: 8.3, v: 1.6, z: 7.3, r: 0.8, col: "#bcd8ff", a: 0.4 },
+          { u: 5.0, v: 6.2, z: 0.1, r: 2.4, col: "#9fc8ff", a: 0.2, flat: true },
+        ],
+        windows: 0.6,
+      },
       camZ: 2.3,
       estElements: 215,
       draw(pen, t) {
@@ -451,6 +559,13 @@ export default {
     // (-1,0): Notting Hill Pastel Townhouses, Portobello Stalls & Regent's Canal!
     "-1,0": {
       name: "Notting Hill & Regent's Canal",
+      night: {
+        lights: [
+          { u: 5.0, v: 4.8, z: 0.0, r: 3.2, col: "#ffc070", a: 0.22, flat: true },
+          { u: 5.0, v: 2.2, z: 0.0, r: 1.6, col: "#ffb860", a: 0.3, flat: true },
+        ],
+        windows: 0,
+      },
       camZ: 1.5,
       estElements: 230,
       draw(pen, t) {

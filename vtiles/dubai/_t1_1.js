@@ -128,6 +128,7 @@ export function win(k, F, s, z, w, h, o = {}) {
   const c = k.ctx;
   k.path([F(s - 0.04, z - 0.04), F(s + w + 0.04, z - 0.04), F(s + w + 0.04, z + h + 0.04), F(s - 0.04, z + h + 0.04)], { fill: o.frame || TRIM, lw: 0.9, wobble: 0 });
   k.path([F(s, z), F(s + w, z), F(s + w, z + h), F(s, z + h)], { fill: "#3b2618", lw: 0.9, wobble: 0 });
+  if (k.night && ((s * 37 + z * 53 + w * 11) % 1 + 1) % 1 < 0.55) k.lit(() => k.path([F(s + 0.01, z + 0.01), F(s + w - 0.01, z + 0.01), F(s + w - 0.01, z + h - 0.01), F(s + 0.01, z + h - 0.01)], { fill: "rgba(255,190,90,0.92)", lw: 0, wobble: 0, stroke: false }));
   if (o.lit) { const a = 0.35 + 0.25 * Math.sin(k.t * 1.3 + s * 7); k.path([F(s + 0.02, z + 0.02), F(s + w - 0.02, z + 0.02), F(s + w - 0.02, z + h - 0.02), F(s + 0.02, z + h - 0.02)], { fill: `rgba(255,196,96,${a})`, stroke: false, wobble: 0 }); }
   c.strokeStyle = o.grille || "#8a5730"; c.lineWidth = 1.1; c.beginPath();
   const nb = Math.max(2, Math.round(w / 0.07));
@@ -260,6 +261,7 @@ function awningOld(k, F, s0, s1, z, o = {}) {
 }
 export function lantern(k, x, y, o = {}) {
   const c = k.ctx, t = k.t, s = o.s ?? 1, a = Math.sin(t * 1.7 + (o.ph ?? 0)) * 0.14, L = (o.chain ?? 8) * s;
+  const nt = c.__ns?.n; if (nt) c.__emit = (c.__emit || 0) + 1;
   c.save(); c.translate(x, y); c.rotate(a);
   c.strokeStyle = INK; c.lineWidth = 0.8; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, L); c.stroke();
   const glow = 0.75 + 0.25 * Math.sin(t * 5 + (o.ph ?? 0) * 3);
@@ -270,7 +272,9 @@ export function lantern(k, x, y, o = {}) {
   c.fillStyle = o.glass || `rgba(255,${190 + 30 * glow | 0},90,0.95)`; c.fill(); c.stroke();
   c.beginPath(); c.moveTo(0, L + 2 * s); c.lineTo(0, L + 9 * s); c.moveTo(-1.6 * s, L + 2 * s); c.lineTo(-1.1 * s, L + 9 * s); c.moveTo(1.6 * s, L + 2 * s); c.lineTo(1.1 * s, L + 9 * s); c.lineWidth = 0.5; c.stroke();
   c.fillStyle = o.metal || "#b88a3a"; c.beginPath(); c.moveTo(-2.4 * s, L + 9 * s); c.lineTo(2.4 * s, L + 9 * s); c.lineTo(0, L + 12.5 * s); c.closePath(); c.fill(); c.lineWidth = 0.8; c.stroke();
+  if (nt) { c.globalCompositeOperation = "lighter"; const g2 = c.createRadialGradient(0, L + 6 * s, 0, 0, L + 6 * s, 30 * s); g2.addColorStop(0, `rgba(255,170,70,${0.55 * glow})`); g2.addColorStop(1, "rgba(255,170,70,0)"); c.fillStyle = g2; c.beginPath(); c.arc(0, L + 6 * s, 30 * s, 0, 6.3); c.fill(); }
   c.restore();
+  if (nt) c.__emit--;
 }
 // woven basket heaped with spice (u,v ground)
 export function spiceBasket(k, u, v, col, o = {}) {
@@ -332,6 +336,7 @@ export function bollard(k, u, v) {
 export function arabLamp(k, u, v, o = {}) {
   const c = k.ctx, h = o.h ?? 1.65, t = k.t;
   const [x, y] = P(u, v, 0), [, yt] = P(u, v, h);
+  if (k.night) k.glow(u, v, h, 0.9, "#ffb860", 0.5);
   k.ell(u + 0.12, v + 0.05, 0, 0.13, "rgba(60,45,30,0.16)", { stroke: false });
   k.path([[x - 5, y], [x + 5, y], [x + 3, y - 4], [x + 2.2, y - 9], [x - 2.2, y - 9], [x - 3, y - 4]], { fill: "#2c2622", lw: 1, wobble: 0 });
   c.lineCap = "round"; c.strokeStyle = INK; c.lineWidth = 4.2; c.beginPath(); c.moveTo(x, y - 8); c.lineTo(x, yt + 4); c.stroke(); c.strokeStyle = "#3a332d"; c.lineWidth = 2.4; c.stroke();
@@ -344,6 +349,7 @@ export function arabLamp(k, u, v, o = {}) {
   k.path([[x - 6.5, yt - 11], [x + 6.5, yt - 11], [x, yt - 20]], { fill: "#2c2622", lw: 1, wobble: 0 });
   c.fillStyle = "#2c2622"; c.beginPath(); c.arc(x, yt - 21.5, 1.6, 0, 6.3); c.fill();
   c.fillStyle = "#2c2622"; c.fillRect(x - 3.5, yt + 1, 7, 2);
+  if (k.night) k.lit(() => k.path([[x - 3.5, yt + 1], [x + 3.5, yt + 1], [x + 5, yt - 11], [x - 5, yt - 11]], { fill: "rgba(255,214,130,0.95)", lw: 0, wobble: 0, stroke: false }));
 }
 // bougainvillea mass: dark leaves + magenta blossom clusters, gently swaying
 export function bougain(k, x, y, w, h, seed = 1) {
@@ -430,6 +436,7 @@ export function abra(k, u, v, dir, o = {}) {
   const c = k.ctx, t = k.t;
   const B = hull(k, u, v, dir, { len: 1.6, wid: 0.5, h: 0.2, hull: "#8c5630", deck: "#b98450", band: o.band || "#2f7d6a", sheer: 0.1, ...o });
   const { pt, H } = B, dz = H - 0.04;
+  if (k.night) { const ax = dir && dir[0] !== undefined ? dir : [1, 0]; for (const f of [-0.7, 0.7]) k.glow(u + (ax[0] || 0) * f, v + (ax[1] || 0) * f, 0.45, 0.55, "#ffb050", 0.55); k.glow(u, v, 0.02, 1.3, "#ffa040", 0.3, { flat: true }); }
   // fender tyres on the near side
   for (const f of [-0.45, 0, 0.45]) { const p = pt(f, 1.02, H * 0.55); c.strokeStyle = INK; c.lineWidth = 2.6; c.beginPath(); c.ellipse(p[0], p[1], 2.6, 2, 0, 0, 6.3); c.stroke(); c.strokeStyle = "#333"; c.lineWidth = 1.4; c.stroke(); }
   // central bench + engine box

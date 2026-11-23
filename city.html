@@ -23,6 +23,10 @@
   #hud a { color: #0e0f12; text-decoration: none; opacity: 0.7; }
   #hud a:hover { opacity: 1; }
   body.clean #hud { display: none; }
+  body.dark { background: #10162e; }
+  body.dark #hud { background: rgba(16,22,46,.9); color: #e8ecf8; border-color: rgba(232,236,248,.2); }
+  body.dark #hud a { color: #e8ecf8; }
+  body.dark #hud button { background: #e8ecf8; color: #10162e; }
 </style>
 </head>
 <body>
@@ -31,6 +35,7 @@
   <a href="index.html">← All Cities</a>
   <strong id="cityTitle"></strong>
   <button id="playBtn">Pause</button>
+  <button id="nightBtn" aria-pressed="false">Night</button>
   <input id="scrubber" type="range" min="0" max="52" step="0.033" value="0">
   <span id="timeLabel">0.0s / 52.0s</span>
 </div>
@@ -51,6 +56,8 @@
   const timeLabel = document.getElementById("timeLabel");
   const label = (t) => { timeLabel.textContent = `${t.toFixed(1)}s / ${DURATION.toFixed(1)}s`; };
   const num = (k) => (params.has(k) ? Number(params.get(k)) : undefined);
+  // ?night (or ?night=0.6 for dusk): the city at night
+  const night = params.has("night") ? Number(params.get("night") || 1) : 0;
 
   window.ready = (async () => {
     const city = (await import(`./cities/${cityId}.js`)).default;
@@ -60,6 +67,7 @@
     // Frame renderer (render.mjs, ?clean) and frozen previews (?t=seconds) draw everything on this thread
     if (isClean || params.has("t") || params.has("main") || !liveSupported()) {
       const stage = new WorldStage(canvas, city);
+      stage.night = night;
       await stage.loadAssets();
       if (!isClean) stage.background = "#ffffff"; // the film renderer (?clean) keeps the paper texture
       window.render = (t) => stage.render(t);
@@ -80,13 +88,23 @@
 
     // Live playback: tiles are drawn in parallel by workers (lib/live-city.js)
     const live = new LiveCity(canvas, cityId, {
-      workers: num("workers"), size: num("size"), maxWidth: 1920, background: "#ffffff",
+      workers: num("workers"), size: num("size"), maxWidth: 1920, background: "#ffffff", night,
       onFrame: (t) => { if (live.playing) { scrubber.value = t; label(t); } },
     });
     window.live = live;
     await live.load();
     live.play();
     playBtn.onclick = () => { if (live.playing) live.pause(); else live.play(); playBtn.textContent = live.playing ? "Pause" : "Play"; };
+    // day <-> night, faded over a second
+    const nightBtn = document.getElementById("nightBtn");
+    let target = night ? 1 : 0, cur = target;
+    const sync = () => { nightBtn.textContent = target ? "Day" : "Night"; nightBtn.setAttribute("aria-pressed", String(!!target)); document.body.classList.toggle("dark", !!target); };
+    sync();
+    nightBtn.onclick = () => {
+      target = target ? 0 : 1; sync();
+      const a = performance.now(), from = cur;
+      requestAnimationFrame(function step(now) { const p = Math.min(1, (now - a) / 1000); cur = from + (target - from) * p * p * (3 - 2 * p); live.setNight(cur); if (p < 1) requestAnimationFrame(step); });
+    };
     scrubber.oninput = () => { const t = parseFloat(scrubber.value); label(t); live.seek(t); };
   })();
 </script>

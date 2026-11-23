@@ -78,6 +78,7 @@ export function godzilla(k, x, y, t, o = {}) {
   if (e > 0.02) { const gg = c.createRadialGradient(ex, ey, 1, ex, ey, 16); gg.addColorStop(0, `rgba(255,220,90,${e * 0.8})`); gg.addColorStop(1, "rgba(255,200,60,0)"); c.fillStyle = gg; c.beginPath(); c.arc(ex, ey, 16, 0, TAU); c.fill(); }
   c.beginPath(); c.ellipse(ex, ey, 6, 3.6, 0.28, 0, TAU); c.fillStyle = `rgb(255,${178 + Math.round(60 * glow)},${30 + Math.round(60 * e)})`; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke();
   c.fillStyle = INK; c.beginPath(); c.ellipse(ex, ey + 0.2, 1.2, 3, 0.28, 0, TAU); c.fill();
+  if (c.__ns?.n) { c.__emit = (c.__emit || 0) + 1; const gg = c.createRadialGradient(ex, ey, 1, ex, ey, 26); gg.addColorStop(0, "rgba(255,200,70,0.9)"); gg.addColorStop(1, "rgba(255,160,40,0)"); c.fillStyle = gg; c.beginPath(); c.arc(ex, ey, 26, 0, TAU); c.fill(); c.beginPath(); c.ellipse(ex, ey, 6, 3.6, 0.28, 0, TAU); c.fillStyle = "#ffe27a"; c.fill(); c.fillStyle = INK; c.beginPath(); c.ellipse(ex, ey + 0.2, 1.2, 3, 0.28, 0, TAU); c.fill(); c.__emit--; }
   c.fillStyle = "rgba(255,255,240,0.9)"; c.beginPath(); c.arc(ex - 2, ey - 1.2, 0.9, 0, TAU); c.fill();
   // breath of blue light from the throat on the roar
   if (e > 0.02) { const gg = c.createRadialGradient(-60, -14, 2, -60, -14, 52); gg.addColorStop(0, `rgba(170,235,255,${e * 0.75})`); gg.addColorStop(0.4, `rgba(110,190,255,${e * 0.3})`); gg.addColorStop(1, "rgba(110,190,255,0)"); c.fillStyle = gg; c.beginPath(); c.arc(-60, -14, 52, 0, TAU); c.fill(); }

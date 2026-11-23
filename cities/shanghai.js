@@ -60,6 +60,7 @@ export default {
     // CENTER (0,0): Lujiazui Trio + Circular Pedestrian Skywalk Micro-Story
     "0,0": {
       name: "Lujiazui & Oriental Pearl",
+      night: { windows: 0.65 },
       camZ: 2.5,
       estElements: 235,
       draw(pen, t) {
@@ -134,6 +135,11 @@ export default {
     // (-1,-1): The Bund & Huangpu River
     "-1,-1": {
       name: "The Bund & Huangpu River",
+      night: {
+        flood: [{ cols: ["#ead09c", "#f5e2b8", "#d2b27c", "#cdb48a", "#f0d8a8", "#efd6a4", "#e9d3a2", "#d9b98a", "#d8c294", "#ecd9ac", "#f3e3bf", "#efd9a8", "#efd4a2", "#eed3a0"], tint: "#ffd078", k: 0.5, gain: 1.35 }],
+        lights: [{ u: 5.2, v: 1.9, z: 7.4, r: 1.1, col: "#fff0b8", a: 0.7 }, { u: 5, v: 3.6, z: 0.1, r: 5.5, col: "#ffbf55", a: 0.35, flat: true }, { u: 5, v: 2, z: 5, r: 5.2, col: "#ffb040", a: 0.2 }],
+        windows: 0.7,
+      },
       camZ: 1.7,
       estElements: 230,
       draw(pen, t) {
@@ -189,6 +195,12 @@ export default {
     // (0,-1): Yu Garden & Nine-Turn Zigzag Bridge with Lotus Koi Pond!
     "0,-1": {
       name: "Yu Garden & Zigzag Bridge",
+      night: {
+        flood: [{ cols: ["#a3302a", "#6b1d17", "#c4483a", "#7a241b"], tint: "#ff9a60", k: 0.35, gain: 1.3 }, { cols: ["#70747c", "#7d818a"], tint: "#ffd9a0", k: 0.22, gain: 1.25 }],
+        neon: ["#f7cf7a", "#f4d564", "#f8e7a0"],
+        lights: [{ u: 5, v: 4.5, z: 3, r: 3.2, col: "#ff9a50", a: 0.35 }, { u: 5, v: 4.5, z: 0.1, r: 4.2, col: "#ff8a40", a: 0.3, flat: true }, { u: 5, v: 4.5, z: 5.2, r: 1.4, col: "#ffd890", a: 0.3 }],
+        windows: 0.35,
+      },
       camZ: 1.5,
       estElements: 230,
       draw(pen, t) {
@@ -241,6 +253,11 @@ export default {
     // (1,-1): Nanjing Road Pedestrian Boulevard & Sightseeing Mini-Tram
     "1,-1": {
       name: "Nanjing Road Pedestrian Mall",
+      night: {
+        neon: ["#ff4a5a", "#ffd24a", "#e8353a", "#f6d878", "#e9c24d", "#fff0a0", "#fff3b8", "#c7332b"],
+        lights: [{ u: 5, v: 5, z: 0.1, r: 5, col: "#ffb860", a: 0.28, flat: true }],
+        windows: 0.65,
+      },
       camZ: 1.7,
       estElements: 230,
       draw(pen, t) {
@@ -294,6 +311,7 @@ export default {
     // (1,0): Shanghai Maglev Guideway & Futuristic Glass Terminal
     "1,0": {
       name: "Shanghai Maglev Viaduct",
+      night: { windows: 0.3, lights: [{ u: 5, v: 5, z: 0.1, r: 4.5, col: "#cfe4ff", a: 0.15, flat: true }] },
       camZ: 1.6,
       estElements: 205,
       draw(pen, t) {
@@ -325,6 +343,9 @@ export default {
     // (1,1): Tianzifang & Shikumen Stone-Gate Lane Houses
     "1,1": {
       name: "Tianzifang Shikumen Lanes",
+      night: { windows: 0.6, lights: [{ u: 5, v: 7, z: 0.1, r: 4, col: "#ffb860", a: 0.3, flat: true },
+        { u: 2, v: 5, z: 1.2, r: 1.1, col: "#ffc070", a: 0.5 }, { u: 4, v: 2, z: 1.2, r: 1.1, col: "#ffc070", a: 0.5 }, { u: 7, v: 2.5, z: 1.2, r: 1.1, col: "#ffc070", a: 0.5 },
+        { u: 8.2, v: 5, z: 1.2, r: 1.1, col: "#ffc070", a: 0.5 }, { u: 5.5, v: 3, z: 2.4, r: 1.2, col: "#ffb060", a: 0.4 }, { u: 3, v: 3, z: 2.4, r: 1.2, col: "#ffb060", a: 0.4 }] },
       camZ: 1.6,
       estElements: 230,
       draw(pen, t) {
@@ -372,6 +393,12 @@ export default {
     // (0,1): Jing'an Golden Temple
     "0,1": {
       name: "Jing'an Golden Temple",
+      night: {
+        flood: [{ cols: ["#e8b63a", "#f8d96e", "#b47a1c", "#6e4210", "#d9a84f", "#c9923d", "#e8b63a"], tint: "#ffcc66", k: 0.55, gain: 1.3 }, { cols: ["#a8342b", "#7a2420", "#8a2c26"], tint: "#ff7a40", k: 0.6, gain: 1.4 }],
+        neon: ["#fff8d0"],
+        lights: [{ u: 5, v: 4, z: 8, r: 3.6, col: "#ffbf50", a: 0.3 }, { u: 5, v: 5, z: 0.1, r: 5, col: "#ffb040", a: 0.28, flat: true }],
+        windows: 0.3,
+      },
       camZ: 1.8,
       estElements: 220,
       draw(pen) {
@@ -418,6 +445,12 @@ export default {
     // (-1,1): Zhujiajiao Water Town Canal & Arched Fangsheng Bridge
     "-1,1": {
       name: "Zhujiajiao Water Town",
+      night: {
+        neon: ["#e8c35a", "#e8b94a", "#c9382f", "#d8602f"],
+        lights: [{ u: 5, v: 5, z: 0.1, r: 4.5, col: "#ff9a4a", a: 0.3, flat: true }, { u: 5, v: 6, z: 0.05, r: 2.2, col: "#ff8a40", a: 0.45, flat: true },
+          { u: 3, v: 3, z: 1.6, r: 1.2, col: "#ffc070", a: 0.5 }, { u: 5.5, v: 2.5, z: 1.6, r: 1.2, col: "#ffc070", a: 0.5 }, { u: 8, v: 4, z: 1.6, r: 1.2, col: "#ffc070", a: 0.5 }, { u: 7, v: 7, z: 1.6, r: 1.2, col: "#ff9a50", a: 0.45 }],
+        windows: 0.55,
+      },
       camZ: 1.5,
       estElements: 225,
       draw(pen, t) {
@@ -465,6 +498,7 @@ export default {
     // (-1,0): Century Park, Organic Lotus Lake, Kites & Tai Chi Circle
     "-1,0": {
       name: "Century Park & Tai Chi Lawn",
+      night: { windows: 0.2 },
       camZ: 1.4,
       estElements: 215,
       draw(pen, t) {

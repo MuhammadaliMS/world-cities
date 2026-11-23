@@ -128,6 +128,15 @@ export default {
     // CENTER (0,0): Senso-ji Temple (Asakusa) + Nakamise Stalls + Incense Censer Micro-Story
     "0,0": {
       name: "Senso-ji Temple, Asakusa",
+      night: {
+        flood: [{ cols: ["#cc4837", "#cc3b29", "#d6382a", "#e65a40", "#f26a48", "#d8ad48", "#e2b23a", "#e0b04a", "#e8a53a"], tint: "#ffb060", k: 0.75, gain: 1.4 }],
+        lights: [
+          { u: 5.0, v: 2.2, z: 1.6, r: 2.6, col: "#ffb060", a: 0.4 },
+          { u: 8.3, v: 8.0, z: 3.0, r: 2.2, col: "#ffc070", a: 0.35 },
+          { u: 5.0, v: 6.0, z: 0.1, r: 3.6, col: "#ffa850", a: 0.28, flat: true },
+        ],
+        windows: 0.3,
+      },
       camZ: 1.9,
       estElements: 240,
       draw(pen, t) {
@@ -263,6 +272,10 @@ export default {
     // (0,-1): Tokyo Tower & Shiba Park
     "0,-1": {
       name: "Tokyo Tower & Shiba Park",
+      night: {
+        flood: [{ cols: ["#e2481f", "#a8301a", "#f06a3a", "#f8f4ea"], tint: "#ffa040", k: 0.9, gain: 1.7 }],
+        windows: 0.25,
+      },
       camZ: 2.3,
       estElements: 220,
       draw(pen, t) {
@@ -297,6 +310,7 @@ export default {
 
     // (1,-1): Shinkansen Bullet Train & Mt. Fuji View
     "1,-1": {
+      night: { nowin: [{ box: [3.5, 0.3, 9.7, 4.6, 9] }, { box: [0, 0, 4.5, 2.6, 9] }, { box: [0, 0, 2.5, 4, 9] }], windows: 0.4, },
       name: "Shinkansen & Mt. Fuji View",
       camZ: 1.8,
       estElements: 210,
@@ -345,6 +359,7 @@ export default {
     // (1,0): Shinjuku / Kabukicho & Godzilla Terrace
     "1,0": {
       name: "Shinjuku & Godzilla Terrace",
+      night: { windows: 0.62 },
       camZ: 1.8,
       estElements: 225,
       draw(pen, t) {
@@ -405,6 +420,7 @@ export default {
     // (1,1): Odaiba, Rainbow Bridge & Giant Mecha Statue
     "1,1": {
       name: "Odaiba & Rainbow Bridge",
+      night: { flood: [{ cols: ["#f3f1ea", "#dedbd1", "#e9e7df", "#cfccc2"], tint: "#dff0ff", k: 0.55, gain: 1.45 }], windows: 0.5 },
       camZ: 1.7,
       estElements: 220,
       draw(pen, t) {
@@ -484,6 +500,7 @@ export default {
     // (0,1): Ueno Park & Organic Shinobazu Swan Boat Lotus Pond
     "0,1": {
       name: "Ueno Park & Swan Pond",
+      night: { windows: 0.7, lights: [{ u: 5.0, v: 5.0, z: 1.2, r: 2.6, col: "#ffc070", a: 0.35 }, { u: 5.0, v: 5.0, z: 0.1, r: 4.0, col: "#ffc070", a: 0.18, flat: true }] },
       camZ: 1.4,
       estElements: 215,
       draw(pen, t) {
@@ -521,6 +538,7 @@ export default {
     // (-1,1): Meiji Jingu Forest, Cypress Torii & Sake Barrels
     "-1,1": {
       name: "Meiji Jingu Shrine & Forest",
+      night: { windows: 0.45, lights: [{ u: 7.0, v: 3.5, z: 1.2, r: 2.4, col: "#ffc880", a: 0.3 }, { u: 3.0, v: 6.0, z: 0.1, r: 3.0, col: "#ffd090", a: 0.2, flat: true }] },
       camZ: 1.5,
       estElements: 225,
       draw(pen, t) {

@@ -102,6 +102,35 @@ const open = clamp((c - 5.5) / 3) - clamp((c - 12.5) / 3);   // rises 5.5-8.5 s,
 Give every tile one signature event with a clear before and after, plus a few small motions (flags,
 fountain jets, birds, smoke, a boat).
 
+## Night
+
+Every tile gets a night version for free: `lib/night.js` turns colours moonlit, lights about half of the small
+glass-coloured shapes as windows, and leaves people, cars and water alone. `k.lamp` and `k.car` carry their own
+light. What only you can add is how your landmark looks at night. Two tools:
+
+**Hints** in the city file, under the tile's entry (data only):
+
+```js
+"0,0": {
+  name: "Eiffel Tower",
+  night: {
+    flood: [{ cols: ["#6e4429", "#4a2c18"], tint: "#ffd27a", k: 0.9, gain: 1.8 }], // these colours are floodlit
+    // flood: [{ box: [u0, v0, u1, v1, zTop], tint, k }]   or everything inside a box on screen
+    neon: ["#e07a94"],                         // colours that keep full brightness (signs, screens)
+    lights: [{ u: 4.85, v: 4.85, z: 13.4, r: 0.9, col: "#fff2c0", a: 0.9 }],   // glows; flat: true = on the ground
+    windows: 0.5,                              // share of lit windows (0 = none)
+    nowin: [{ box: [5, 0.5, 9.5, 4.5, 6] }],   // nothing lights up as a window here (snow, glass roofs)
+  },
+},
+```
+
+**Code** that only runs at night: `if (k.night) { ... }`. `k.night` is 0 by day and 1 at night.
+`k.glow(u, v, z, r, colour, strength, { flat })` adds a light and does nothing by day. `k.lit(() => { ... })`
+draws something that gives off light (a neon tube, a clock face): its colours are not darkened.
+
+Check a tile at night with `node tools/trace-shot.mjs <city> <gx,gy> --mode code --night 1`, and that the day
+picture did not change with `node tools/day-hash.mjs save` before and `node tools/day-hash.mjs check` after.
+
 ## A city
 
 `cities/<id>.js` describes the city. The minimum:

@@ -59,6 +59,16 @@ function drum(k, u, v, z0, z1, r, o = {}) {
   c.restore();
   c.strokeStyle = INK; c.lineWidth = o.lw ?? 1.3; c.lineJoin = "round";
   body(); c.stroke();
+  // night: white LED lighting washes the glass, fins and terraces
+  if (k.night) k.lit(() => {
+    c.save(); body(); c.clip();
+    c.fillStyle = o.led ?? "rgba(232,242,255,0.62)"; c.fillRect(x - rx, yt - ry, rx * 2, yb - yt + ry * 3);
+    c.fillStyle = "rgba(255,236,190,0.28)"; c.fillRect(x - rx, yt - ry, rx * 0.55, yb - yt + ry * 3);
+    for (let i = 0; i <= nf; i++) { const th = Math.PI * (i / nf), xx = x - Math.cos(th) * rx; c.strokeStyle = "rgba(255,255,255,0.55)"; c.lineWidth = 0.9; c.beginPath(); c.moveTo(xx, yt); c.lineTo(xx, yb + ry * Math.sin(th)); c.stroke(); }
+    for (let z = z0 + step * 2; z < z1 - 0.05; z += step * 2) { const [, yy] = P(u, v, z); c.beginPath(); c.moveTo(x - rx, yy); c.quadraticCurveTo(x, yy + ry * 2, x + rx, yy); c.strokeStyle = "rgba(255,255,255,0.3)"; c.lineWidth = 0.7; c.stroke(); }
+    c.restore();
+    c.beginPath(); c.ellipse(x, yt, rx, ry, 0, 0, 6.3); c.fillStyle = "rgba(255,255,255,0.7)"; c.fill();
+  });
   // band edge
   c.beginPath(); c.ellipse(x, yb2, rx, ry, 0, 0, Math.PI); c.strokeStyle = "rgba(42,36,32,0.7)"; c.lineWidth = 0.9; c.stroke();
   // terrace top: silver ring, parapet, inner glass roof
@@ -145,6 +155,14 @@ export function makeBurj(C) {
     const seg = (ya, yb, w) => { c.strokeStyle = INK; c.lineWidth = w + 1.8; c.beginPath(); c.moveTo(cx, ya); c.lineTo(cx, yb); c.stroke(); c.strokeStyle = "#eef1f3"; c.lineWidth = w; c.stroke(); c.strokeStyle = "rgba(120,135,150,0.7)"; c.lineWidth = Math.max(0.6, w * 0.3); c.beginPath(); c.moveTo(cx + w * 0.22, ya); c.lineTo(cx + w * 0.22, yb); c.stroke(); };
     seg(100 + 4, 84, 5.4); seg(84, 74, 3.8); seg(74, 66, 2.4); seg(66, ytip + 4, 1.4);
     for (const yy of [96, 88, 80, 72]) { c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.moveTo(cx - 4.5, yy); c.lineTo(cx + 4.5, yy); c.stroke(); }
+    if (k.night) k.lit(() => {
+      c.strokeStyle = "rgba(255,255,255,0.95)"; c.lineWidth = 1.6; c.beginPath(); c.moveTo(cx, 100); c.lineTo(cx, ytip + 3); c.stroke();
+      c.strokeStyle = "rgba(255,255,255,0.5)"; c.lineWidth = 4.5; c.beginPath(); c.moveTo(cx, 100); c.lineTo(cx, ytip + 3); c.stroke();
+      for (const yy of [96, 88, 80, 72]) { c.strokeStyle = "rgba(255,255,255,0.95)"; c.lineWidth = 1.2; c.beginPath(); c.moveTo(cx - 4.5, yy); c.lineTo(cx + 4.5, yy); c.stroke(); }
+    });
+    if (k.night) { const pu = 0.5 + 0.5 * Math.sin(k.t * 2.2);
+      const g = (r, a) => { const cc = k.ctx; cc.__emit = (cc.__emit || 0) + 1; cc.save(); cc.globalCompositeOperation = "lighter"; const gr = cc.createRadialGradient(cx, ytip + 6, 0, cx, ytip + 6, r); gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(1, "rgba(255,255,255,0)"); cc.fillStyle = gr; cc.fillRect(cx - r, ytip + 6 - r, r * 2, r * 2); cc.restore(); cc.__emit--; };
+      g(24 + 5 * pu, 0.6); g(8, 0.65); }
     const blink = Math.sin(k.t * 3.2) > 0.2 ? 1 : 0.18;
     c.fillStyle = `rgba(255,70,60,${blink})`; c.beginPath(); c.arc(cx, ytip, 2, 0, 6.3); c.fill();
     if (blink > 0.5) { c.fillStyle = "rgba(255,90,70,0.28)"; c.beginPath(); c.arc(cx, ytip, 6.5, 0, 6.3); c.fill(); }

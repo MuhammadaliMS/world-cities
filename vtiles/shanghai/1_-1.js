@@ -1,5 +1,6 @@
 // SHANGHAI · Nanjing Road pedestrian mall: beaux-arts department stores with clock domes, art-deco tower, neon banners, tourist tram, shoppers
 import { P, INK, shade, mix, lerp, clamp, hash, crowd, textSign } from "./_props.js";
+import { glow } from "../../lib/night.js";
 import { lanternLamp, planter } from "./_h_a.js";
 import { fp, makeWall, storeWall, slateRoof, dormer, chimney, clockDome, bladeSign, zigSign, decoTower, arcade, course, STONE } from "./_t1_-1.js";
 
@@ -176,6 +177,11 @@ export default function draw(k, t) {
   k.q(2.4 + 5.0 + 3.0, () => bladeSign(k, 372, 424, 52, 168, "dia", "南京东路", ["#ff4a5a", "#ffd24a", "#ff4a5a", "#ffd24a"], 0));
   k.q(5.5 + 2.4 + 3.2, () => zigSign(k, 631, 358, 48, 150, "步行街", 1.7));
   k.q(8.2 + 2.9 + 3.0, () => bladeSign(k, 746, 494, 46, 112, "tri", "百货店", ["#e8353a", "#ffd24a", "#e8353a"], 3.1));
+  if (k.night) k.q(40, () => { // glow around the neon signs
+    const SG = (x, y, r, col, a) => k.ctx.__ns && glow(k.ctx, x, y, r, col, a * k.night);
+    SG(372, 440, 120, "#ff4a5a", 0.5); SG(372, 430, 60, "#ffd24a", 0.3);
+    SG(631, 433, 110, "#ffb050", 0.5); SG(746, 550, 100, "#ff4a4a", 0.5);
+  });
   // red hanging lantern strings
   [[2.7, 8.0], [3.1, 4.5], [9.1, 2.95]].forEach(([u, v], i) => k.q(u + v + 1.5, () => { for (let j = 0; j < 3; j++) { const [x, y] = P(u, v + j * 0.5, 2.6); const sw = Math.sin(t * 1.9 + i + j) * 1.8; c.strokeStyle = INK; c.lineWidth = 0.8; c.beginPath(); c.moveTo(x, y - 6); c.lineTo(x + sw, y + 2); c.stroke(); c.fillStyle = "#d8392e"; c.beginPath(); c.ellipse(x + sw, y + 8, 4.6, 6, 0, 0, 7); c.fill(); c.lineWidth = 0.9; c.stroke(); c.fillStyle = "#e8bd4a"; c.fillRect(x + sw - 2, y + 1.5, 4, 1.4); c.fillRect(x + sw - 2, y + 13, 4, 1.4); } }));
 

@@ -59,9 +59,10 @@ export function faceDraw(k, b, side, s0, s1, zA, zB, w, h, fn) {
   quadDraw(k, TL, TR, BL, w, h, fn);
 }
 // sign with text on a box face. text drawn centred, auto-fit.
+const litFace = (k, ...a) => (k.night ? k.lit(() => faceDraw(k, ...a)) : faceDraw(k, ...a));
 export function faceSign(k, b, side, s0, s1, zA, zB, text, o = {}) {
   const w = 100 * (o.ar ?? 1.6), h = 100;
-  faceDraw(k, b, side, s0, s1, zA, zB, w, h, (c) => {
+  litFace(k, b, side, s0, s1, zA, zB, w, h, (c) => {
     c.fillStyle = o.bg || "#1f2a44"; c.fillRect(0, 0, w, h);
     if (o.border) { c.strokeStyle = o.border; c.lineWidth = 7; c.strokeRect(5, 5, w - 10, h - 10); }
     c.fillStyle = o.fg || "#fff"; c.font = `bold ${o.size ?? 62}px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle";
@@ -126,6 +127,7 @@ export function mroof(k, pr, u, v, z, du, dv, h, o = {}) {
 }
 
 // ---------- lanterns, gates, small props ----------
+import { glow as nightGlow } from "../../lib/night.js";
 export function chochin(k, x, y, o = {}) {
   const c = k.ctx, t = k.t, r = o.r ?? 6, col = o.col || "#d9372b", sway = o.sway === false ? 0 : Math.sin(t * 1.6 + (o.seed || 0)) * (o.amp ?? 1.2);
   const cx = x + sway, ry = r * 1.18;
@@ -140,6 +142,20 @@ export function chochin(k, x, y, o = {}) {
   for (let i = -3; i <= 3; i++) { c.beginPath(); c.ellipse(cx, y + i * ry * 0.28, r, r * 0.22, 0, 0, Math.PI); c.stroke(); }
   if (o.text) { c.fillStyle = o.textCol || "#2a1410"; c.font = `bold ${Math.max(6, r * 1.0)}px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle"; [...o.text].forEach((g2, i, a) => c.fillText(g2, cx, y + (i - (a.length - 1) / 2) * r * 0.95)); }
   c.restore();
+  if (k.night) {
+    // lit paper lantern: warm body, glyph stays dark, halo
+    const w = 0.85 + 0.15 * Math.sin(t * 6 + (o.seed || 0) * 2.3);
+    k.lit(() => {
+      c.save(); c.beginPath(); c.ellipse(cx, y, r * 0.96, ry * 0.96, 0, 0, 6.3); c.clip();
+      const g2 = c.createRadialGradient(cx, y, r * 0.1, cx, y, r * 1.1); g2.addColorStop(0, "#fff0b8"); g2.addColorStop(0.55, col === "#e8a53a" ? "#ffc25a" : "#ff6a3a"); g2.addColorStop(1, "#c8321e");
+      c.globalAlpha = 0.9 * w; c.fillStyle = g2; c.fillRect(cx - r, y - ry, r * 2, ry * 2); c.globalAlpha = 1;
+      c.strokeStyle = "rgba(90,20,8,0.5)"; c.lineWidth = 0.7;
+      for (let i = -3; i <= 3; i++) { c.beginPath(); c.ellipse(cx, y + i * ry * 0.28, r, r * 0.22, 0, 0, Math.PI); c.stroke(); }
+      if (o.text) { c.fillStyle = "#3a0e08"; c.font = `bold ${Math.max(6, r * 1.0)}px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle"; [...o.text].forEach((g3, i, a) => c.fillText(g3, cx, y + (i - (a.length - 1) / 2) * r * 0.95)); }
+      c.restore();
+    });
+    nightGlow(c, cx, y, r * (o.glow ? 3.6 : 2.6), "#ff9a4a", 0.55 * w);
+  }
 }
 // string of lanterns hanging between two px points
 export function lanternString(k, A, B, n, o = {}) {
@@ -161,6 +177,11 @@ export function toro(k, u, v, o = {}) {
   const lit = 0.75 + 0.25 * Math.sin(t * 5 + u * 7 + v);
   const [x, y] = P(u, v + 0.12, 0.6 * h); c.fillStyle = `rgba(255,${Math.round(190 + 30 * lit)},110,${0.5 + 0.4 * lit})`; c.fillRect(x - 3, y - 4, 6, 7);
   c.strokeStyle = INK; c.lineWidth = 0.9; c.strokeRect(x - 3, y - 4, 6, 7);
+  if (k.night) {
+    k.lit(() => { c.fillStyle = "rgba(255,214,130,0.97)"; c.fillRect(x - 3, y - 4, 6, 7); });
+    k.glow(u, v + 0.1, 0.62 * h, 0.95, "#ffb860", 0.7 * (0.85 + 0.15 * Math.sin(t * 5 + u * 7 + v)));
+    k.glow(u, v, 0.02, 1.5, "#ffb860", 0.3, { flat: true });
+  }
   k.hip(u - 0.3, v - 0.3, 0.76 * h, 0.6, 0.6, 0.26 * h, "#9a958a", { inset: 0.16 });
   const [jx, jy] = P(u, v, 1.04 * h); k.circle(jx, jy, 2, "#b9b2a2", { lw: 0.9 });
 }
@@ -299,7 +320,7 @@ export function screenFace(k, b, side, s0, s1, zA, zB, o = {}) {
 // blinking neon board
 export function neon(k, b, side, s0, s1, zA, zB, text, o = {}) {
   const t = k.t, on = o.blink ? (Math.sin(t * (o.rate ?? 5) + (o.seed || 0)) > -0.35 ? 1 : 0.35) : 1;
-  faceDraw(k, b, side, s0, s1, zA, zB, 100 * (o.ar ?? 1.3), 100, (c, w, h) => {
+  litFace(k, b, side, s0, s1, zA, zB, 100 * (o.ar ?? 1.3), 100, (c, w, h) => {
     c.fillStyle = o.bg || "#18132b"; c.fillRect(0, 0, w, h);
     c.strokeStyle = o.col || "#ff4fa0"; c.globalAlpha = on; c.lineWidth = 5; c.strokeRect(6, 6, w - 12, h - 12);
     c.shadowColor = o.col || "#ff4fa0"; c.shadowBlur = 12; c.fillStyle = o.fg || "#fff"; c.font = `bold ${o.size ?? 58}px ${FONT}`; c.textAlign = "center"; c.textBaseline = "middle";

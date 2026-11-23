@@ -6,6 +6,7 @@
 //   node render.mjs paris --contact                    -> out/stills/paris_contact.png (12-frame sheet)
 //   node render.mjs paris --check                      -> determinism check
 //   node render.mjs paris --fps 30 --duration 52 --size 1920x1080 --crf 16
+//   node render.mjs paris --night 1                    -> out/paris-night.mp4
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
@@ -57,7 +58,8 @@ const server = createServer(async (req, res) => {
 
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const port = server.address().port;
-const url = `http://127.0.0.1:${port}/city.html?city=${encodeURIComponent(city)}&clean=1`;
+const NIGHT = opt("night"); // --night 1: the city at night
+const url = `http://127.0.0.1:${port}/city.html?city=${encodeURIComponent(city)}&clean=1${NIGHT ? `&night=${NIGHT}` : ""}`;
 
 const [sw, sh] = (opt("size") || "1920x1080").split("x").map(Number);
 const width = sw || 1920;
@@ -152,7 +154,7 @@ if (args.includes("--contact")) {
   process.exit(0);
 }
 
-const out = opt("out") || `out/${city}.mp4`;
+const out = opt("out") || `out/${city}${NIGHT ? "-night" : ""}.mp4`;
 await mkdir(path.dirname(out), { recursive: true });
 const ff = spawn("ffmpeg", [
   "-y", "-loglevel", "error",

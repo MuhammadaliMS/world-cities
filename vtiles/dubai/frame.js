@@ -28,6 +28,7 @@ export function makeFrame(cfg = {}) {
     c.save(); tr(c, inner); c.clip();
     lattice(k, F, e, e, wa - 2 * e, hb - 2 * e, o);
     c.restore();
+    if (k.night) k.lit(() => { tr(c, inner); c.fillStyle = "rgba(255,190,72,0.5)"; c.fill(); tr(c, outer); c.fillStyle = "rgba(255,214,110,0.55)"; c.fill("evenodd"); });
     c.lineJoin = "round";
     tr(c, inner); c.strokeStyle = "rgba(60,38,12,0.55)"; c.lineWidth = 0.9; c.stroke();
     // rim highlight on the upper/left edges

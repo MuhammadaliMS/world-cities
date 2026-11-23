@@ -201,6 +201,24 @@ function glassPyramid(k, cu, cv, a, h, t, seed = 0, grid = 8) {
     const f = hash(i * 3.7 + seed), g = hash(i * 9.1 + seed), fx = lerp(pt(D)[0], pt(C)[0], f), fy = lerp(pt(D)[1], T[1], 0.2 + 0.6 * g) + (1 - Math.abs(f - 0.5) * 2) * 0;
     sparkle(k, lerp(lerp(pt(D)[0], pt(C)[0], f), T[0], g * 0.6), lerp(lerp(pt(D)[1], pt(C)[1], f), T[1], g * 0.6), t * 1.6 + i * 2.3 + seed, 1.1);
   }
+  if (k.night) {
+    // lit from inside: warm-white glass, bright lattice
+    const big = grid > 5, pulse = 0.94 + 0.06 * Math.sin(t * 1.7 + seed);
+    k.lit(() => {
+      c.save();
+      for (const [p0, p1] of [[pt(D), pt(C)], [pt(B), pt(C)]]) {
+        c.beginPath(); c.moveTo(...p0); c.lineTo(...p1); c.lineTo(...T); c.closePath();
+        const g = c.createLinearGradient(0, pt(C)[1], 0, T[1]);
+        g.addColorStop(0, `rgba(255,236,170,${0.9 * pulse})`); g.addColorStop(1, `rgba(255,252,226,${0.97 * pulse})`);
+        c.fillStyle = g; c.fill();
+        c.save(); c.clip(); lat(p0, p1, grid, "rgba(150,110,50,0.55)", 0.9); c.restore();
+        c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+      }
+      c.restore();
+    });
+    k.glow(cu, cv, h * 0.45, big ? 3.6 : 1.1, "#ffd78a", big ? 0.55 : 0.4);
+    if (big) k.glow(cu, cv, 0.1, 5.2, "#ffd78a", 0.35, { flat: true });
+  }
 }
 function mainPyramid(k, t) {
   const cu = 5.0, cv = 5.0, a = 1.75, h = 2.85;

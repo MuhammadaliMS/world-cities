@@ -2,6 +2,9 @@
 // Only vtiles/shanghai/0_0.js imports this file.
 import { P, CTS, INK, shade, mix, lerp, clamp, rng, glint, SKYC } from "./_props.js";
 import { tracePts, bil, glassFace } from "./_t0_0.js";
+import { glow } from "../../lib/night.js";
+const nightN = (c) => c.__ns?.n || 0;
+const NG = (c, x, y, r, col, a, sy = 1) => { const n = nightN(c); if (n) glow(c, x, y, r, col, a * n, sy); };
 
 const CREAM = "#e9ddc6", PINK = "#c93468", PINK_D = "#97244f", LAT = "rgba(255,228,238,0.8)";
 
@@ -54,6 +57,14 @@ function pinkBand(c, xc, yc, r, p0, p1, nLon, nLat, lw) {
   c.strokeStyle = LAT; c.lineWidth = lw; lattice(c, xc, yc, r, p0, p1, nLon, nLat);
   c.restore();
   c.strokeStyle = PINK_D; c.lineWidth = 1; latLine(c, xc, yc, r, p0); latLine(c, xc, yc, r, p1);
+  if (nightN(c)) { // night: the pink glazing glows pink to violet from inside
+    c.save(); c.__emit = (c.__emit | 0) + 1; c.globalAlpha = 0.85 * nightN(c);
+    band(c, xc, yc, r, p0, p1);
+    const g = c.createLinearGradient(xc - r, yc - r, xc + r, yc + r); g.addColorStop(0, "#ff5cae"); g.addColorStop(0.55, "#d24cff"); g.addColorStop(1, "#7a4cff");
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = "#ffd6f2"; c.lineWidth = lw * 0.9; band(c, xc, yc, r, p0, p1); c.clip(); lattice(c, xc, yc, r, p0, p1, nLon, nLat);
+    c.__emit--; c.restore();
+  }
 }
 function lowerSphere(c, xc, yc, r, t) {
   c.save(); c.beginPath(); c.arc(xc, yc, r, 0, 7); c.clip();
@@ -202,6 +213,15 @@ export function makePearl(C, PZ) {
     const b = (t % 1.6) < 0.8; c.fillStyle = b ? "#ff2e2e" : "#7a1f1f"; c.beginPath(); c.arc(X(508.5), Y(1), 2.6, 0, 7); c.fill();
     if (b) { c.save(); c.globalAlpha = 0.3; c.fillStyle = "#ff5050"; c.beginPath(); c.arc(X(508.5), Y(1), 10, 0, 7); c.fill(); c.restore(); }
     // sun glints rolling over the glass
+    if (nightN(c)) {
+      const pulse = 0.8 + 0.2 * Math.sin(t * 2.2);
+      NG(c, X(510), Y(427.5), 120, "#ff4fb0", 0.55 * pulse); NG(c, X(510), Y(427.5), 58, "#ffa6e0", 0.7);
+      NG(c, X(508.5), Y(205), 100, "#b45cff", 0.55 * pulse); NG(c, X(508.5), Y(205), 48, "#ffa6e8", 0.7);
+      NG(c, X(508.5), Y(106.5), 34, "#ff6cc0", 0.7); NG(c, X(509), Y(300), 70, "#c070ff", 0.3);
+      for (const y of [270, 303.5, 337.5, 370]) NG(c, X(509), Y(y), 18, "#ff7ad0", 0.7);
+      NG(c, X(511), Y(505), 70, "#ffb0e8", 0.5, 0.5); NG(c, X(510), Y(537), 110, "#d070ff", 0.45, 0.4);
+      NG(c, X(508.5), Y(40), 26, "#ff4a6a", 0.7);
+    }
     const gs = (t * 0.3) % 1; if (gs < 0.35) glint(c, X(494) + gs * 34, Y(186) + gs * 8, 6 * Math.sin(gs / 0.35 * Math.PI) + 1);
     const gl = (t * 0.27 + 0.45) % 1; if (gl < 0.35) glint(c, X(486) + gl * 44, Y(404) + gl * 10, 7 * Math.sin(gl / 0.35 * Math.PI) + 1);
   }
@@ -274,6 +294,7 @@ export function shanghaiTower(k, u, v, H, t) {
   c.beginPath(); inner.forEach((p, i) => (i ? c.lineTo(...p) : c.moveTo(...p))); c.closePath(); c.fillStyle = "#4f7898"; c.fill(); c.lineWidth = 1; c.stroke();
   c.strokeStyle = "rgba(255,255,255,0.7)"; c.lineWidth = 0.8; c.beginPath(); inner.slice(0, M / 2).forEach((p, i) => (i ? c.lineTo(...p) : c.moveTo(...p))); c.stroke();
   // sparkles
+  if (k.night) { k.glow(u, v, H * 0.97, 0.9, "#9fe0ff", 0.65); k.glow(u, v, H * 0.6, 1.4, "#7fb8ff", 0.25); k.glow(u, v, H * 0.15, 1.6, "#ffd9a0", 0.2); }
   const R = rng(5);
   for (let i = 0; i < 7; i++) { const ph = R() * 9, f = 0.1 + R() * 0.8, s = Math.max(0, Math.sin(t * (1.1 + R()) + ph)); const p = P(...pt(f, 2.3 + R() * 0.8)); if (s > 0.86) glint(c, p[0], p[1], (s - 0.86) / 0.14 * 7 + 1.5); }
 }
@@ -345,6 +366,7 @@ export function swfc(k, u0, v0, du, dv, H, t) {
   c.restore();
   tracePts(c, A); c.strokeStyle = INK; c.lineWidth = 1.6; c.stroke();
   // sparkles
+  if (k.night) { k.glow(uc, vc, H * 0.97, 0.8, "#bfe8ff", 0.6); k.glow(uc, vc, H * 0.55, 1.2, "#8ac0ff", 0.22); }
   const R = rng(11);
   for (let i = 0; i < 6; i++) { const ph = R() * 9, f = 0.15 + R() * 0.6, s = Math.max(0, Math.sin(t * (1 + R()) + ph)); const p = Q(0.3 + R() * 0.6, 1, f * 0.6); if (s > 0.87) glint(c, p[0] + 20, p[1], (s - 0.87) / 0.13 * 7 + 1.5); }
 }
@@ -388,5 +410,6 @@ export function jinMao(k, u, v, du, dv, H, t) {
   k.cyl(uc, vc, zs, 0.05, 0.3, "#e3c46a");
   const a = P(uc, vc, zs + 0.3), b = P(uc, vc, zs + 1.7); c.strokeStyle = INK; c.lineWidth = 3.4; c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke(); c.strokeStyle = "#e9cf7a"; c.lineWidth = 1.8; c.stroke();
   for (const zz of [0.6, 1.0]) { const p = P(uc, vc, zs + zz); c.strokeStyle = INK; c.lineWidth = 1.2; c.beginPath(); c.moveTo(p[0] - 3.5, p[1]); c.lineTo(p[0] + 3.5, p[1]); c.stroke(); }
+  if (k.night) { k.glow(uc, vc, zs + 0.6, 0.8, "#ffe29a", 0.8); k.glow(uc, vc, H * 0.7, 1.2, "#ffc870", 0.3); k.glow(uc, vc, H * 0.25, 1.4, "#ffc870", 0.2); }
   const R = rng(3); for (let i = 0; i < 3; i++) { const ph = R() * 9, s2 = Math.max(0, Math.sin(t * 1.3 + ph)); const p = P(u + 0.2 + R() * 0.4, v + dv, 0.5 + R() * 3.5); if (s2 > 0.88) glint(c, p[0], p[1], (s2 - 0.88) / 0.12 * 6 + 1.5); }
 }

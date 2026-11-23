@@ -37,6 +37,10 @@ function sash(k, G, a, zb, zt, ww, hood, lit, seed) {
   k.path([G(a - ww / 2, 0.015, lerp(zb, zt, 0.62)), G(a + ww / 2, 0.015, lerp(zb, zt, 0.62)), G(a + ww / 2, 0.015, zt), G(a - ww / 2, 0.015, zt)], { fill: "rgba(40,44,58,0.35)", stroke: false, wobble: 0 });
   const glow = lit ? "rgba(255,200,115,0.9)" : "rgba(226,168,104,0.55)";
   k.path([G(a - ww * 0.32, 0.015, zb + 0.02), G(a + ww * 0.32, 0.015, zb + 0.02), G(a + ww * 0.32, 0.015, lerp(zb, zt, 0.4)), G(a - ww * 0.32, 0.015, lerp(zb, zt, 0.4))], { fill: glow, stroke: false, wobble: 0 });
+  if (k.night) { // night: about two thirds of the sash windows glow with lamplight (pure function of position)
+    const hv = (Math.abs(Math.sin(seed * 12.9898 + a * 78.233 + zb * 37.719)) * 43758.5453) % 1;
+    if (hv < 0.62) k.lit(() => k.path([G(a - ww / 2, 0.016, zb), G(a + ww / 2, 0.016, zb), G(a + ww / 2, 0.016, zt), G(a - ww / 2, 0.016, zt)], { fill: hv < 0.3 ? "#ffd27a" : "#ffc060", stroke: false, wobble: 0 }));
+  }
   for (const sg of [-1, 1]) {
     const e = a + sg * ww / 2, m = a + sg * ww * 0.3;
     k.path([G(e, 0.016, zt), G(m, 0.016, zt), G(lerp(m, e, 0.35), 0.016, lerp(zb, zt, 0.45)), G(m, 0.016, zb), G(e, 0.016, zb)], { fill: "#efe3c8", stroke: false, wobble: 0 });

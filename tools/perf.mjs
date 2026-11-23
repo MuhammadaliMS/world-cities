@@ -9,7 +9,7 @@ const server = createServer(async (req, res) => { try { const p = path.join(root
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const b = await chromium.launch(); const pg = await b.newPage();
 const t0 = Date.now();
-await pg.goto(`http://127.0.0.1:${server.address().port}/city.html?city=${city}&clean=1`);
+await pg.goto(`http://127.0.0.1:${server.address().port}/city.html?city=${city}&clean=1${process.argv[3] ? "&night=" + process.argv[3] : ""}`);
 await pg.waitForFunction(() => typeof window.render === "function"); await pg.evaluate(() => window.ready);
 console.log("load ms", Date.now() - t0);
 const out = await pg.evaluate(() => { const r = {}; for (const t of [3, 10, 24, 39, 48]) { const a = performance.now(); for (let i = 0; i < 6; i++) window.render(t + i / 30); r[t] = ((performance.now() - a) / 6).toFixed(0); } return r; });

@@ -112,7 +112,7 @@ export function makeBurjAlArab(cfg = {}) {
   }
 
   // the curved fabric sail: a ruled surface bulging toward +v, shaded by its slope in plan
-  function sail(c, t) {
+  function sail(c, t, k) {
     const S = 14, V = (s, z) => E(lerp(aSl(z), aSr(z), s), bSail(s), z);
     // thin glass strip between the sail and the outer arch
     { const lo = [], hi = []; for (let z = SAIL_BOT; z <= SAIL_TOP + 0.01; z += 0.2) { lo.push(E(aSr(z), B_OUT1, z)); hi.push(E(aOut(z) - OW / 2 + 0.02, B_OUT1, z)); }
@@ -134,6 +134,10 @@ export function makeBurjAlArab(cfg = {}) {
         tr(c, q); c.fillStyle = g; c.fill();
         const zm = (zA + zB) / 2, d = Math.abs(zm - sheen);
         if (d < 0.9) { tr(c, q); c.fillStyle = `rgba(255,255,255,${0.3 * (1 - d / 0.9)})`; c.fill(); }
+        if (k && k.night) k.lit(() => { // the sail is lit from behind in a slow cycle of colours
+          const hue = 205 + 110 * (0.5 + 0.5 * Math.sin(t * 0.35 + zm * 0.28 - sm * 0.6));
+          tr(c, q); c.fillStyle = `hsla(${hue},95%,${58 + 14 * lit}%,0.82)`; c.fill();
+        });
       }
       // fabric seams down the panel
       c.strokeStyle = "rgba(150,150,145,0.2)"; c.lineWidth = 0.6; c.beginPath();
@@ -171,10 +175,11 @@ export function makeBurjAlArab(cfg = {}) {
       // cream canopy lip
       k.poly([[TU + a0 - 0.02, TV + b1 + 0.06, ZI + ZB], [TU + a1 + 0.02, TV + b1 + 0.06, ZI + ZB], [TU + a1 + 0.02, TV + b1 + 0.06, ZI + ZB - 0.07], [TU + a0 - 0.02, TV + b1 + 0.06, ZI + ZB - 0.07]], STONE, { lw: 0.9, wobble: 0 }); }
 
+    if (k.night) { const hh = 205 + 110 * (0.5 + 0.5 * Math.sin(t * 0.35 + 1.4)); k.glow(TU + 2.5, TV + 0.9, ZI + 3.4, 2.6, `hsl(${hh},95%,60%)`, 0.42); k.glow(TU + 2.5, TV + 1.2, ZI + 5.4, 1.6, `hsl(${hh},95%,65%)`, 0.3); k.glow(TU + 2.0, TV + 1.2, ZI + 0.2, 2.2, "#ffb060", 0.4, { flat: true }); }
     // ---- far plane: the outer arch (behind the sail) ----
     archBand(c, offset(CO, -0.1), OW, 0.3, B_OUT1, ZB);
     // ---- the curved sail ----
-    sail(c, t);
+    sail(c, t, k);
     // ---- glass above the wing roof (between spine and inner arch) ----
     glassBands(c, t, B_MID, () => SP_W, (z) => aIn(z) - IW / 2 + 0.02, 6.3, 8.4, { pitch: 0.2, lit: 0.05, seed: 5 });
     // ---- the glass wing facing front-left ----

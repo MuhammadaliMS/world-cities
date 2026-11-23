@@ -96,6 +96,15 @@ export function fountain(k, t) {
   L.push([tu + tv + 0.3, () => column(k, tu, tv, 1.2 + 1.3 * wv(t, 0.95, 1, 0.1) + 0.9 * B, 1, 1.1)]);
   L.sort((a, b) => a[0] - b[0]);
   for (const [, fn] of L) fn();
+  if (k.night) { // floodlit jets: pools of light that move with the water
+    const cols = ["#bfe6ff", "#ffffff", "#ffe2a0", "#9fd0ff"];
+    for (let i = 0; i < 9; i++) {
+      const s = 0.2 + 0.6 * (i / 8), [u, v] = spine(s), w = wv(t, s), cc = cols[Math.floor(t * 0.5 + i * 0.4) % 4];
+      k.glow(u, v, 0.5 + 1.3 * w, 0.5, cc, 0.35 + 0.25 * w);
+      k.glow(u, v, 0.05, 1.0, cc, 0.35, { flat: true });
+    }
+    k.glow(4.6, 7.4, 1.0, 0.9, "#ffe9b0", 0.5); k.glow(4.6, 7.4, 0.05, 1.3, "#bfe6ff", 0.35, { flat: true });
+  }
 }
 
 // ---------- the arched bridge: runs along v at u = 7.8, lands on both promenades ----------

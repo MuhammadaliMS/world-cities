@@ -2,6 +2,7 @@
 // Screenshot the tracing page.
 //   node tools/trace-shot.mjs paris 0,0 [--mode split|onion|ref|code|grid|codegrid] [--t 2] [--scale 1] [--crop x,y,w,h] [--out file.png]
 //   node tools/trace-shot.mjs paris 0,0 --frames 0,0.5,1   -> one strip of code frames (motion check)
+//   add --night 1 (or 0.6 for dusk) to see the tile at night with its hints from cities/<city>.js
 // Writes out/trace/<city>_<tile>_<mode>.png by default and prints the path.
 import { chromium } from "playwright";
 import { createServer } from "node:http";
@@ -22,6 +23,8 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const mode = opt("mode", "split"), scale = opt("scale", "1"), crop = opt("crop"), frames = opt("frames");
 const qs = new URLSearchParams({ city, tile, mode: frames ? "code" : mode, scale, t: opt("t", "2") });
 if (crop) qs.set("crop", crop);
+const night = opt("night");
+if (night) qs.set("night", night);
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
 const errors = [];
@@ -31,7 +34,7 @@ await page.goto(`http://127.0.0.1:${server.address().port}/trace.html?${qs}`);
 await page.waitForFunction(() => typeof window.render === "function", null, { timeout: 15000 });
 await page.evaluate(() => window.ready);
 await mkdir(path.join(root, "out/trace"), { recursive: true });
-const base = `${city}_${tile.replace(",", "_")}`;
+const base = `${city}_${tile.replace(",", "_")}${night ? "_night" : ""}`;
 const video = opt("video");
 if (video) {
   // --video <seconds> : render the page at --fps into an mp4 (split/code/onion mode)

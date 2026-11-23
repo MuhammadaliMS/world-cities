@@ -102,6 +102,15 @@ export function extrude(k, pts, h, o = {}) {
 }
 
 // mural screen across a run of consecutive visible edges (by index list), s range along the total run
+import { glow as nightGlow } from "../../lib/night.js";
+// screens and signs keep their colours at night and light the street around them
+function litQ(k, TL, TR, BL, w, h, fn) {
+  if (!k.night) return quadDraw(k, TL, TR, BL, w, h, fn);
+  k.lit(() => quadDraw(k, TL, TR, BL, w, h, fn));
+  const cx = (TL[0] + TR[0]) / 2 + (BL[0] - TL[0]) / 2, cy = (TL[1] + TR[1]) / 2 + (BL[1] - TL[1]) / 2, sz = Math.hypot(TR[0] - TL[0], TR[1] - TL[1]);
+  const fl = 0.85 + 0.15 * Math.sin(k.t * 2.3 + cx * 0.05);
+  nightGlow(k.ctx, cx, cy, Math.max(30, sz * 0.75), "#9ab4ff", 0.34 * fl);
+}
 export function screenRun(k, bld, idxs, sA, sB, zA, zB, o = {}) {
   const t = k.t, es = bld.edges.filter((e) => idxs.includes(e.i)).sort((p, q) => idxs.indexOf(p.i) - idxs.indexOf(q.i));
   if (!es.length) return;
@@ -114,7 +123,7 @@ export function screenRun(k, bld, idxs, sA, sB, zA, zB, o = {}) {
     const p0 = lerp2(e.a, e.b, s0), p1 = lerp2(e.a, e.b, s1), z0 = bld.z0;
     const TL = P(p0[0], p0[1], z0 + zB), TR = P(p1[0], p1[1], z0 + zB), BL = P(p0[0], p0[1], z0 + zA);
     const ww = (b - a) / (sB - sA) * W, off = (a - sA) / (sB - sA) * W;
-    quadDraw(k, TL, TR, BL, ww, Hh, (c) => { c.beginPath(); c.rect(0, 0, ww, Hh); c.clip(); c.translate(-off, 0); mural(c, W, Hh, t, o.seed || 0, o.text); });
+    litQ(k, TL, TR, BL, ww, Hh, (c) => { c.beginPath(); c.rect(0, 0, ww, Hh); c.clip(); c.translate(-off, 0); mural(c, W, Hh, t, o.seed || 0, o.text); });
   });
   // frame
   const c = k.ctx; c.strokeStyle = "rgba(42,36,32,0.8)"; c.lineWidth = 1.4;
@@ -127,7 +136,7 @@ export function edgeSign(k, e, z0, s0, s1, zA, zB, text, o = {}) {
   const p0 = lerp2(e.a, e.b, s0), p1 = lerp2(e.a, e.b, s1);
   const TL = P(p0[0], p0[1], z0 + zB), TR = P(p1[0], p1[1], z0 + zB), BL = P(p0[0], p0[1], z0 + zA);
   const w = 100 * (o.ar ?? 1.6), h = 100, t = k.t;
-  quadDraw(k, TL, TR, BL, w, h, (c) => {
+  litQ(k, TL, TR, BL, w, h, (c) => {
     const blink = o.blink ? (Math.sin(t * (o.rate ?? 4) + (o.seed || 0)) > -0.3 ? 1 : 0.4) : 1;
     c.fillStyle = o.bg || "#1f2a44"; c.fillRect(0, 0, w, h);
     c.strokeStyle = o.border || "rgba(255,255,255,0.7)"; c.lineWidth = 5; c.strokeRect(4, 4, w - 8, h - 8);

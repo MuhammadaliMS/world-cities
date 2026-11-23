@@ -103,6 +103,15 @@ export function makeAinDubai(o = {}) {
     stroke2(c, ring(R2, dv), front ? 1.4 : 1.1, front ? WH_M : WH_D, INK, true);
     stroke2(c, ring(RO, dv), front ? 2.8 : 2, front ? WH : WH_M, INK, true);
     if (front) { c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = 1; c.beginPath(); for (let i = 0; i <= 40; i++) { const p = Pw(Math.PI * 0.45 + (i / 40) * Math.PI * 0.75, RO, dv); i ? c.lineTo(...p) : c.moveTo(...p); } c.stroke(); }
+    if (c.__ns?.n) { // night: the rims are LED rings whose colour travels round the wheel
+      c.__emit = (c.__emit || 0) + 1; c.lineCap = "butt";
+      for (const [r, w] of [[RO, front ? 3 : 2.2], [RI, front ? 2.4 : 1.8]]) for (let i = 0; i < 48; i++) {
+        const a0 = rot + (i / 48) * Math.PI * 2, a1 = rot + ((i + 1.15) / 48) * Math.PI * 2, hue = (i * 7.5 + rot * 40) % 360;
+        c.strokeStyle = `hsla(${hue},95%,${front ? 66 : 54}%,${front ? 0.95 : 0.7})`; c.lineWidth = w; c.beginPath();
+        for (let j = 0; j <= 3; j++) { const p = Pw(a0 + (a1 - a0) * j / 3, r, dv); j ? c.lineTo(...p) : c.moveTo(...p); } c.stroke();
+      }
+      c.__emit--;
+    }
     if (front) { c.fillStyle = WH_D; for (let i = 0; i < NSP; i++) { const p = Pw(rot + (i / NSP) * Math.PI * 2, RI, dv); c.beginPath(); c.arc(p[0], p[1], 1.6, 0, 6.3); c.fill(); } }
     c.restore();
   }
@@ -132,6 +141,7 @@ export function makeAinDubai(o = {}) {
     c.beginPath(); c.ellipse(0, 0.6, w - 1.8, h - 3.4, 0, 0, Math.PI * 2);
     const gg = c.createLinearGradient(-w, 0, w, 0); gg.addColorStop(0, "#b8dae6"); gg.addColorStop(0.45, GLASS); gg.addColorStop(1, GLASS_D);
     c.fillStyle = gg; c.fill(); c.strokeStyle = "rgba(42,36,32,0.8)"; c.lineWidth = 0.8; c.stroke();
+    if (c.__ns?.n) { c.__emit = (c.__emit || 0) + 1; c.fillStyle = i % 2 ? "rgba(255,214,140,0.85)" : "rgba(255,236,190,0.85)"; c.fill(); c.__emit--; }
     c.save(); c.clip();
     if (i % 3 !== 1) { const Rr = rng(i * 17 + 3); for (let j = 0; j < 2 + (i % 2); j++) { const px = -7 + j * 6 + Rr() * 2, col = ["#d9544b", "#f4f0e6", "#2f4b6c", "#e9c24d", "#26222a"][Math.floor(Rr() * 5)]; c.fillStyle = col; c.fillRect(px - 1.6, 1, 3.2, 4); c.fillStyle = "#c99a74"; c.beginPath(); c.arc(px, -0.6, 1.4, 0, 6.3); c.fill(); } }
     c.strokeStyle = "rgba(240,236,228,0.95)"; c.lineWidth = 1.1; c.beginPath();

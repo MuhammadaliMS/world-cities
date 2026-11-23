@@ -89,6 +89,15 @@ export default {
     // CENTER (0,0): Burj Khalifa & Dancing Dubai Fountain Show
     "0,0": {
       name: "Burj Khalifa & Dubai Fountain",
+      night: {
+        windows: 0.55,
+        lights: [
+          { u: 2.8, v: 2.8, z: 6.0, r: 3.0, col: "#cfe4ff", a: 0.28 },
+          { u: 2.8, v: 2.8, z: 0.5, r: 2.6, col: "#fff0d0", a: 0.3, flat: true },
+          { u: 1.3, v: 6.6, z: 0.9, r: 1.5, col: "#ffc062", a: 0.35 }, { u: 7.4, v: 1.1, z: 0.9, r: 1.6, col: "#ffc062", a: 0.35 },
+          { u: 1.0, v: 5.6, z: 0.4, r: 0.9, col: "#ff9a4a", a: 0.4, flat: true }, { u: 8.0, v: 1.0, z: 0.4, r: 0.9, col: "#ff9a4a", a: 0.4, flat: true },
+        ],
+      },
       camZ: 2.5,
       estElements: 235,
       draw(pen, t) {
@@ -139,6 +148,10 @@ export default {
     // (-1,-1): Burj Al Arab & Jumeirah Beach
     "-1,-1": {
       name: "Burj Al Arab & Jumeirah Beach",
+      night: {
+        windows: 0.5,
+        flood: [{ cols: ["#f3ece0", "#d8ccb8", "#bfb29c", "#fffdf8", "#f6f1e7", "#f6f0e4", "#fffcf6", "#fffaf0"], tint: "#e4ecff", k: 0.75, gain: 1.55 }],
+      },
       camZ: 1.9,
       estElements: 205,
       draw(pen, t) {
@@ -176,6 +189,19 @@ export default {
     // (0,-1): Palm Jumeirah & Atlantis Arch Resort
     "0,-1": {
       name: "Palm Jumeirah & Atlantis",
+      night: {
+        windows: 0.55,
+        flood: [
+          { cols: ["#f0a585", "#f8c4a8", "#d9866a", "#f7e2c4"], tint: "#ffb878", k: 0.85, gain: 1.6 },
+          { cols: ["#f2d6aa"], tint: "#c88a5a", k: 0.5, gain: 1.1 },
+          { cols: ["#2c7377", "#3f9e94", "#5fa9a4"], tint: "#8ff0e0", k: 0.8, gain: 1.7 },
+          { cols: ["#e2ab3c"], tint: "#ffd870", k: 0.9, gain: 1.6 },
+        ],
+        lights: [
+          { u: 3.0, v: 3.0, z: 1.2, r: 3.4, col: "#ffa860", a: 0.3 },
+          { u: 3.6, v: 3.6, z: 0, r: 2.6, col: "#ffb870", a: 0.3, flat: true },
+        ],
+      },
       camZ: 1.6,
       estElements: 220,
       draw(pen, t) {
@@ -231,6 +257,10 @@ export default {
     // (1,-1): Museum of the Future & Dubai Metro
     "1,-1": {
       name: "Museum of the Future & Metro",
+      night: {
+        windows: 0.55,
+        lights: [{ u: 4.8, v: 3.0, z: 0.9, r: 3.0, col: "#cfdcff", a: 0.28, flat: true }, { u: 8.0, v: 7.6, z: 1.9, r: 1.0, col: "#9fd8ff", a: 0.4 }],
+      },
       camZ: 1.8,
       estElements: 205,
       draw(pen, t) {
@@ -292,6 +322,18 @@ export default {
     // (1,0): Dubai Frame & Zabeel Park
     "1,0": {
       name: "Dubai Frame & Zabeel Park",
+      night: {
+        windows: 0.4,
+        flood: [
+          { cols: ["#e9b949", "#f6d36e", "#b9852c", "#f1c95f", "#e3ae45", "#d6aa52", "#efc65e", "#ffe7a6"], tint: "#ffc24a", k: 0.9, gain: 1.7 },
+          { cols: ["#a9c3cc", "#d6e8ee", "#c3d3d6", "#9ac2cf"], tint: "#ffe4a8", k: 0.85, gain: 1.6 },
+        ],
+        lights: [
+          { u: 5.0, v: 5.0, z: 4.0, r: 3.6, col: "#ffbb50", a: 0.3 },
+          { u: 5.0, v: 5.0, z: 0.1, r: 3.4, col: "#ffc060", a: 0.3, flat: true },
+          { u: 5.0, v: 7.6, z: 0.2, r: 1.6, col: "#8fd0ff", a: 0.4, flat: true },
+        ],
+      },
       camZ: 2.1,
       estElements: 210,
       draw(pen, t) {
@@ -341,6 +383,13 @@ export default {
     // (1,1): Al Fahidi Wind-Towers, Spice Souk & Dubai Creek Abras!
     "1,1": {
       name: "Al Fahidi & Dubai Creek",
+      night: {
+        windows: 0.4,
+        lights: [
+          { u: 3.0, v: 4.4, z: 0.6, r: 2.2, col: "#ff9a40", a: 0.4, flat: true },
+          { u: 6.4, v: 4.4, z: 0.6, r: 2.2, col: "#ff9a40", a: 0.4, flat: true },
+        ],
+      },
       camZ: 1.5,
       estElements: 225,
       draw(pen, t) {
@@ -384,6 +433,14 @@ export default {
     // (0,1): Dubai Marina, Wooden Yacht Piers & Luxury Skyline!
     "0,1": {
       name: "Dubai Marina & Yacht Harbor",
+      night: {
+        windows: 0.78,
+        lights: [
+          { u: 1.65, v: 1.65, z: 7.9, r: 1.0, col: "#ffffff", a: 0.55 },
+          { u: 5.0, v: 6.4, z: 0.1, r: 3.4, col: "#ffcf86", a: 0.3, flat: true },
+          { u: 5.0, v: 6.4, z: 0.1, r: 2.0, col: "#7fc0ff", a: 0.25, flat: true },
+        ],
+      },
       camZ: 1.9,
       estElements: 220,
       draw(pen, t) {
@@ -422,6 +479,13 @@ export default {
     // (-1,1): Ain Dubai & Bluewaters Island
     "-1,1": {
       name: "Ain Dubai & Bluewaters Island",
+      night: {
+        windows: 0.6,
+        lights: [
+          { u: 5.0, v: 3.2, z: 5.6, r: 4.6, col: "#9a8cff", a: 0.16 },
+          { u: 5.0, v: 5.0, z: 0.2, r: 2.2, col: "#ffc680", a: 0.3, flat: true },
+        ],
+      },
       camZ: 2.0,
       estElements: 205,
       draw(pen, t) {
@@ -453,6 +517,11 @@ export default {
     // (-1,0): Desert Safari Dunes & Oasis Camp
     "-1,0": {
       name: "Desert Safari Dunes & Oasis",
+      night: {
+        windows: 0.1,
+        nowin: [{ box: [0, 0, 10, 10, 6] }],
+        lights: [{ u: 4.0, v: 7.4, z: 0.5, r: 2.6, col: "#ff8a30", a: 0.7 }, { u: 4.0, v: 7.4, z: 0.1, r: 2.2, col: "#ff9a40", a: 0.55, flat: true }],
+      },
       camZ: 1.5,
       estElements: 205,
       draw(pen, t) {

@@ -1,6 +1,7 @@
 // TOKYO -1,1 · Meiji Jingu hero module: honden hall (copper roofs), cedar/camphor forest, great torii,
 // sake-barrel wall (kazaridaru), temizuya basin, mossy stone lanterns, rope fences, rocks, shrubs.
 // Everything is placed in CTS px traced from assets/tokyo/-1_1.png (the painting is not true iso).
+import { glow as nightGlow } from "../../lib/night.js";
 import { P, INK, shade, lerp, rng, hash } from "../../lib/vec-kit.js";
 import { FONT, uvOf, depthOf } from "./_props.js";
 
@@ -176,6 +177,7 @@ function wallBays(c, x0, x1, y, z0, z1, n, t, sanctum) {
       const cc = L2(L2(top, tr, 0.5), L2(bl, [tr[0], tr[1] + (bl[1] - top[1])], 0.5), 0.5); kiku(c, cc[0] + sw, cc[1], 3.6, "#6b4c8a");
       // hanging lantern glow inside
       const g = c.createRadialGradient(cc[0], cc[1] + 14, 0, cc[0], cc[1] + 14, 14); g.addColorStop(0, "rgba(255,200,110,0.55)"); g.addColorStop(1, "rgba(255,200,110,0)"); c.fillStyle = g; c.beginPath(); c.arc(cc[0], cc[1] + 14, 14, 0, TAU); c.fill();
+      if (c.__ns?.n) { nightGlow(c, cc[0], cc[1] + 8, 52, "#ffbc60", 0.85); nightGlow(c, cc[0], cc[1] + 40, 70, "#ffc880", 0.3); }
       continue;
     }
     poly(c, q, "#7a5434", 0.9);
@@ -585,6 +587,7 @@ export function lantern(k, t, x, yb, s = 1, seed = 1, base = false) {
   // shaft
   poly(c, [[x - S(6), y], [x - S(5), y - S(26)], [x + S(5), y - S(26)], [x + S(6), y]], st, 1.1); c.strokeStyle = "rgba(80,70,55,0.4)"; c.lineWidth = 0.8; c.beginPath(); c.moveTo(x - S(6), y - S(13)); c.lineTo(x + S(6), y - S(13)); c.stroke(); y -= S(26);
   blk(S(12), y - S(6), y, S(4)); y -= S(6);
+  if (k.night) { nightGlow(k.ctx, x, yb - 30 * s, 34 * s, "#ffb860", 0.8); nightGlow(k.ctx, x, yb, 60 * s, "#ffb860", 0.22); k.lit(() => { k.ctx.fillStyle = "#ffd987"; k.ctx.fillRect(x - 3.5 * s, yb - 36 * s, 7 * s, 8 * s); }); }
   // firebox with flickering light
   const fl = 0.75 + 0.25 * Math.sin(t * 6 + seed * 3) * Math.sin(t * 2.3 + seed);
   poly(c, [[x - S(9), y], [x - S(9), y - S(17)], [x + S(9), y - S(17)], [x + S(9), y]], st, 1.1);

@@ -3,7 +3,7 @@
   const live = window.live; live.pause();
   const { WorldStage } = await import("./lib/world-stage.js");
   const c2 = document.createElement("canvas"); c2.width = live.stage.width; c2.height = live.stage.height;
-  const ref = new WorldStage(c2, live.city); await ref.loadAssets();
+  const ref = new WorldStage(c2, live.city); await ref.loadAssets(); ref.night = live.stage.night || 0; ref.background = live.stage.background;
   const W = c2.width, H = c2.height, res = {}, files = {};
   const px = (c) => { const g = document.createElement("canvas"); g.width = W; g.height = H; const x = g.getContext("2d", { willReadFrequently: true }); x.drawImage(c, 0, 0); return { g, d: x.getImageData(0, 0, W, H).data }; };
   for (const t of [1.5, 3.2, 5, 8, 12, 16, 20, 24, 28, 32, 36, 39, 42, 46, 51]) {
